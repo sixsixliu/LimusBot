@@ -9,6 +9,7 @@ try:
     from . import auto_agree
     from . import image
     from . import manager
+    from . import auto_msg
 except ValueError:
     pass
 

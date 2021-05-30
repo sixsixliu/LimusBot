@@ -180,7 +180,7 @@ async def _(bot: Bot, event: Event, state: dict):
         "\n使用中遇到问题欢迎加群反馈，\n" +\
         "群号：629574472\n" +\
         "\n常见问题：https://www.haruka-bot.live/usage/faq.html\n" +\
-        "\n当前刘六六修改的版本：0.1" +\
+        "\n当前刘六六修改的版本：0.2" +\
         "\n有问题直接群里at刘六六反馈"
     await get_version.finish(message)
 
@@ -203,19 +203,19 @@ async def _(bot: Bot, event: Event, state: dict):
         message += name
         if not name.endswith(('列表', '权限', '版本信息')):
             message += " uid"
-        message += '\n'
+        message += '、'
     message += "\n命令中的uid需要替换为对应主播的uid，注意是uid不是直播间id\n" + \
         "\n刘六六增加的功能有：\n" + \
         "随机色图\n" + \
         "随机夸图\n" + \
         "随机影图\n" + \
-        "（使用时均需@bot）\n" + \
+        "（无需@bot 关键词可自行尝试）\n" + \
         "\n后续计划：\n" \
         "增加自动爬虫更新色图、" \
+        "刚发过的色图会降低随机权重、" \
         "增加随机每日lim、" \
         "色图请求量统计、" \
-        "捕捉群内lim、" \
-        "复读机"
+        "lim辱骂语音（待定）"
     await help.finish(message)
 
 

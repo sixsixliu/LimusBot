@@ -1,4 +1,4 @@
-from nonebot import on_command
+from nonebot import on_command, on_keyword, on_message
 from nonebot.adapters import Bot, Event
 from nonebot.typing import T_State
 from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent
@@ -14,101 +14,86 @@ query_times = TinyDB(get_path('query_times.json'), encoding='utf-8')
 query_times_today = query_times.table('today')
 query_times_all = query_times.table('all')
 
-ghs = on_command('随机色图', rule=to_me(), priority=5)
-aqua = on_command('随机夸图', rule=to_me(), priority=5)
-echo = on_command('随机影图', rule=to_me(), priority=5)
+ghs = on_keyword({'随机色图', '随机涩图', '来点色图', '来点涩图', '来张色图', '来张涩图', '给张色图', '给张涩图',
+                  '色图time', '涩图time'}, priority=5)
+aqua = on_keyword({'随机夸图', '来点夸图', '来张夸图', '给张夸图', 'crew', '随机阿夸', '来点阿夸', '来张阿夸',
+                   '给张阿夸'}, priority=5)
+echo = on_keyword({'随机影图', '来点影图', '来张影图', '给张影图', '口口口', '因为echo很色'}, priority=5)
 
 
 @ghs.handle()
 async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
-    qqid = event.get_user_id()
-    q = Query()
-    if query_times_today.contains(q.qqid == qqid) and query_times_today.get(q.qqid == qqid)['times'] >= 5:
-        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(qqid))
+    if check_query_permission(bot, event):
+        message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
         await ghs.finish(message)
     else:
-        path = os.path.join(image_dir, "ghs")
-        imgs = []
-        for x in os.listdir(path):
-            if x.endswith('jpg') or x.endswith('jpeg') or x.endswith('png'):
-                imgs.append(x)
-        selected_imgs = random.sample(imgs, k=1)
-        for img in selected_imgs:
-            f = open(os.path.join(path, img), 'rb')  # 二进制方式打开图文件
-            base64_img = "base64://" + str(base64.b64encode(f.read()).decode('ascii'))  # 读取文件内容，转换为base64编码
-            message = f"[CQ:image,file={base64_img}]"
-            message = Message(message)
-            if not query_times_today.contains(q.qqid == qqid):
-                query_times_today.insert({'qqid': qqid, 'times': 1})
-            else:
-                query_times_today.update({'qqid': qqid, 'times': query_times_today.get(q.qqid == qqid)['times'] + 1})
-            if not query_times_all.contains(q.qqid == qqid):
-                query_times_all.insert({'qqid': qqid, 'times': 1})
-            else:
-                query_times_all.update({'qqid': qqid, 'times': query_times_all.get(q.qqid == qqid)['times'] + 1})
-            await ghs.finish(message)
+        base64_img = get_random_image("ghs")
+        message = f"[CQ:image,file={base64_img}]"
+        await counter(bot, event)
+        await ghs.finish(Message(message))
 
 
 @aqua.handle()
-async def send_aqua(bot: Bot, event: GroupMessageEvent, state: T_State):
-    qqid = event.get_user_id()
-    q = Query()
-    if query_times_today.contains(q.qqid == qqid) and query_times_today.get(q.qqid == qqid)['times'] >= 5:
-        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(qqid))
-        await aqua.finish(message)
+async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
+    if check_query_permission(bot, event):
+        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(event.get_user_id()))
+        await ghs.finish(message)
     else:
-        path = os.path.join(image_dir, "aqua")
-        imgs = []
-        for x in os.listdir(path):
-            if x.endswith('jpg') or x.endswith('jpeg') or x.endswith('png'):
-                imgs.append(x)
-        selected_imgs = random.sample(imgs, k=1)
-        for img in selected_imgs:
-            f = open(os.path.join(path, img), 'rb')  # 二进制方式打开图文件
-            base64_img = "base64://" + str(base64.b64encode(f.read()).decode('ascii'))  # 读取文件内容，转换为base64编码
-            message = f"[CQ:image,file={base64_img}]"
-            message = Message(message)
-            if not query_times_today.contains(q.qqid == qqid):
-                query_times_today.insert({'qqid': qqid, 'times': 1})
-            else:
-                query_times_today.update({'qqid': qqid, 'times': query_times_today.get(q.qqid == qqid)['times'] + 1})
-            if not query_times_all.contains(q.qqid == qqid):
-                query_times_all.insert({'qqid': qqid, 'times': 1})
-            else:
-                query_times_all.update({'qqid': qqid, 'times': query_times_all.get(q.qqid == qqid)['times'] + 1})
-            await aqua.finish(message)
+        base64_img = get_random_image("aqua")
+        message = f"[CQ:image,file={base64_img}]"
+        await counter(bot, event)
+        await ghs.finish(Message(message))
 
 
 @echo.handle()
-async def send_echo(bot: Bot, event: GroupMessageEvent, state: T_State):
-    qqid = event.get_user_id()
-    q = Query()
-    if query_times_today.contains(q.qqid == qqid) and query_times_today.get(q.qqid == qqid)['times'] >= 5:
-        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(qqid))
-        await echo.finish(message)
+async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
+    if check_query_permission(bot, event):
+        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(event.get_user_id()))
+        await ghs.finish(message)
     else:
-        path = os.path.join(image_dir, "echo")
-        imgs = []
-        for x in os.listdir(path):
-            if x.endswith('jpg') or x.endswith('jpeg') or x.endswith('png'):
-                imgs.append(x)
-        selected_imgs = random.sample(imgs, k=1)
-        for img in selected_imgs:
-            f = open(os.path.join(path, img), 'rb')  # 二进制方式打开图文件
-            base64_img = "base64://" + str(base64.b64encode(f.read()).decode('ascii'))  # 读取文件内容，转换为base64编码
-            message = f"[CQ:image,file={base64_img}]"
-            message = Message(message)
-            if not query_times_today.contains(q.qqid == qqid):
-                query_times_today.insert({'qqid': qqid, 'times': 1})
-            else:
-                query_times_today.update({'qqid': qqid, 'times': query_times_today.get(q.qqid == qqid)['times'] + 1})
-            if not query_times_all.contains(q.qqid == qqid):
-                query_times_all.insert({'qqid': qqid, 'times': 1})
-            else:
-                query_times_all.update({'qqid': qqid, 'times': query_times_all.get(q.qqid == qqid)['times'] + 1})
-            await echo.finish(message)
+        base64_img = get_random_image("echo")
+        message = f"[CQ:image,file={base64_img}]"
+        await counter(bot, event)
+        await ghs.finish(Message(message))
 
 
+# 0点删除今日请求记录
 @scheduler.scheduled_job('cron', hour='0', minute='0', id='clear_query_times')
 async def clear_query_times():
     query_times.drop_table('today')
+
+
+# 每日请求色图上限
+def check_query_permission(bot: Bot, event: GroupMessageEvent):
+    qqid = event.get_user_id()
+    q = Query()
+    return event.get_user_id() not in bot.config.superusers and query_times_today.contains(q.qqid == qqid) and \
+           query_times_today.get(q.qqid == qqid)['times'] >= 10
+
+
+# 获取目录下的随机图片
+def get_random_image(folder):
+    path = os.path.join(image_dir, folder)
+    imgs = []
+    for x in os.listdir(path):
+        if x.endswith('jpg') or x.endswith('jpeg') or x.endswith('png'):
+            imgs.append(x)
+    selected_imgs = random.sample(imgs, k=1)
+    f = open(os.path.join(path, selected_imgs[0]), 'rb')  # 二进制方式打开图文件
+    return "base64://" + str(base64.b64encode(f.read()).decode('ascii'))  # 读取文件内容，转换为base64编码
+
+
+# 请求量计数
+async def counter(bot: Bot, event: GroupMessageEvent):
+    qqid = event.get_user_id()
+    q = Query()
+    if not event.get_user_id() in bot.config.superusers:
+        # 如果不是超级管理员 则计数+1
+        if not query_times_today.contains(q.qqid == qqid):
+            query_times_today.insert({'qqid': qqid, 'times': 1})
+        else:
+            query_times_today.update({'qqid': qqid, 'times': query_times_today.get(q.qqid == qqid)['times'] + 1})
+        if not query_times_all.contains(q.qqid == qqid):
+            query_times_all.insert({'qqid': qqid, 'times': 1})
+        else:
+            query_times_all.update({'qqid': qqid, 'times': query_times_all.get(q.qqid == qqid)['times'] + 1})

@@ -36,7 +36,7 @@ async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
 @aqua.handle()
 async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     if check_query_permission(bot, event):
-        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(event.get_user_id()))
+        message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
         await ghs.finish(message)
     else:
         base64_img = get_random_image("aqua")
@@ -48,7 +48,7 @@ async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
 @echo.handle()
 async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     if check_query_permission(bot, event):
-        message = Message("[CQ:at,qq={}]你今天已经请求5张图了 请明天再来吧".format(event.get_user_id()))
+        message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
         await ghs.finish(message)
     else:
         base64_img = get_random_image("echo")

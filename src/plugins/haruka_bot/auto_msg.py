@@ -5,13 +5,15 @@ from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent
 from nonebot.permission import SUPERUSER
 from .utils import to_me, get_path, scheduler
 from tinydb import TinyDB, Query
+import time
 
 
 d_lim = TinyDB(get_path('temp.json'), encoding='utf-8').table("d_lim")
-limqq = '2280883416'
+limqq = Bot.config.limqq
 repeat_msg_dict = {}
 repeat = on_message(priority=5)
 catch_lim = on_message(priority=5)
+good_night = on_command('晚安', rule=to_me(), priority=5)
 
 
 @repeat.handle()
@@ -27,16 +29,16 @@ async def repeat_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
                 del repeat_msg_dict[groupid]
                 await repeat.finish(Message(msg))
         else:
-            repeat_msg_dict[groupid] = [msg, 0]
+            repeat_msg_dict[groupid] = [msg, 1]
     else:
-        repeat_msg_dict[groupid] = [msg, 0]
+        repeat_msg_dict[groupid] = [msg, 1]
 
 
 # 每日每个群捕捉一次lim
 @catch_lim.handle()
 async def catch_lim_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
-    if event.get_user_id() == limqq:
+    if event.get_user_id() == str(limqq):
         if not(d_lim.contains(q.groupid == event.group_id) and d_lim.get(q.groupid == event.group_id)['d'] is True):
             msg = "[CQ:reply,id=" + str(event.message_id) + "]" + \
                   "莉姆🤤嘿嘿.......莉姆🤤嘿嘿......莉姆🤤嘿嘿.......莉姆🤤嘿嘿......莉姆🤤嘿嘿.......莉姆🤤嘿嘿......"
@@ -47,7 +49,21 @@ async def catch_lim_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
             await catch_lim.finish(Message(msg))
 
 
-# 0点重置dlim
-@scheduler.scheduled_job('cron', hour='0', minute='0', id='clear_d_times')
+# 5点重置dlim
+@scheduler.scheduled_job('cron', hour='5', minute='0', id='clear_d_times')
 async def clear_d_times():
     d_lim.update({'d': False})
+
+
+# 晚安语音
+@good_night.handle()
+async def send_good_night(bot: Bot, event: GroupMessageEvent, state: T_State):
+    hour = time.localtime().tm_hour
+    if hour >= 22 or hour <= 2:
+        message = event.sender.card + "，晚安。"
+        message = Message('[CQ:tts,text=' + str(message) + ']')
+        await good_night.finish(message)
+    elif 17 <= hour < 22:
+        message = "才" + str(hour - 12) + "点。"
+        message = Message('[CQ:tts,text=' + str(message) + ']')
+        await good_night.finish(message)

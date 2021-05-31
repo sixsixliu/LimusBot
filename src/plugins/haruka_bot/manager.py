@@ -7,10 +7,7 @@ from .utils import to_me
 
 groupids = ['0']
 mode = 'text'
-group_id_test = '736346227'
-group_id_1 = '1056356647'
-group_id_2 = '599594424'
-group_id_jz = '849956869'
+manage_group_dict = eval(Bot.config.manage_group_dict)
 
 send_message_1 = on_command('send', rule=to_me(), permission=SUPERUSER, priority=5)
 send_message_2 = on_command('', rule=to_me(), permission=SUPERUSER, priority=5)
@@ -23,21 +20,9 @@ async def get_args(bot: Bot, event: Event, state: T_State):
         args = str(event.get_message()).strip().split(' ')
         if args:
             global groupids
-            if args[0] == '1':
-                message = "将发送消息至粉丝1群：{}".format(group_id_1)
-                groupids = [group_id_1]
-            elif args[0] == '2':
-                message = "将发送消息至粉丝2群：{}".format(group_id_2)
-                groupids = [group_id_2]
-            elif args[0] == 'jz':
-                message = "将发送消息至舰长群：{}".format(group_id_jz)
-                groupids = [group_id_jz]
-            elif args[0] == 'test':
-                message = "将发送消息至测试群：{}".format(group_id_test)
-                groupids = [group_id_test]
-            elif args[0] == 'all':
-                message = "将发送消息至所有已配置群"
-                groupids = [group_id_1, group_id_2, group_id_jz]
+            if args[0] in manage_group_dict.keys():
+                message = "将发送消息至{}，群号{}".format(manage_group_dict[args[0]][1], manage_group_dict[args[0]][0])
+                groupids = manage_group_dict[args[0]][0]
             else:
                 message = "将发送消息至群：{}".format(args[0])
                 groupids = [args[0]]

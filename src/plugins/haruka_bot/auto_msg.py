@@ -6,16 +6,15 @@ from nonebot.permission import SUPERUSER
 from .utils import to_me, get_path, scheduler
 from tinydb import TinyDB, Query
 import time
+import random
 
 
 d_lim = TinyDB(get_path('temp.json'), encoding='utf-8').table("d_lim")
 limqq = Bot.config.limqq
 repeat_msg_dict = {}
+
+# 复读
 repeat = on_message(priority=5)
-catch_lim = on_message(priority=5)
-good_night = on_command('晚安', rule=to_me(), priority=5)
-
-
 @repeat.handle()
 async def repeat_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
     global repeat_msg_dict
@@ -35,6 +34,7 @@ async def repeat_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 # 每日每个群捕捉一次lim
+catch_lim = on_message(priority=5)
 @catch_lim.handle()
 async def catch_lim_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
@@ -56,6 +56,7 @@ async def clear_d_times():
 
 
 # 晚安语音
+good_night = on_command('晚安', rule=to_me(), priority=5)
 @good_night.handle()
 async def send_good_night(bot: Bot, event: GroupMessageEvent, state: T_State):
     hour = time.localtime().tm_hour
@@ -67,3 +68,13 @@ async def send_good_night(bot: Bot, event: GroupMessageEvent, state: T_State):
         message = "才" + str(hour - 12) + "点。"
         message = Message('[CQ:tts,text=' + str(message) + ']')
         await good_night.finish(message)
+
+
+# 群友发消息时随机戳一戳
+poke = on_message(priority=5)
+@poke.handle()
+async def random_poke(bot: Bot, event: GroupMessageEvent, state: T_State):
+    if random.random() < 0.01:
+        message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
+        time.sleep(10)
+        await poke.finish(message)

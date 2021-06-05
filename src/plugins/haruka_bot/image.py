@@ -1,7 +1,7 @@
 from nonebot import on_command, on_keyword, on_message
-from nonebot.adapters import Bot, Event
 from nonebot.typing import T_State
-from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent
+from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER
+from nonebot.permission import SUPERUSER
 from .utils import to_me, get_path, safe_send, scheduler
 import random
 import os
@@ -29,8 +29,9 @@ async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     else:
         base64_img = get_random_image("ghs")
         message = f"[CQ:image,file={base64_img}]"
-        await counter(bot, event)
+        # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
         await ghs.finish(Message(message))
+        await counter(bot, event)
 
 
 @aqua.handle()
@@ -41,8 +42,9 @@ async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     else:
         base64_img = get_random_image("aqua")
         message = f"[CQ:image,file={base64_img}]"
-        await counter(bot, event)
+        # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
         await ghs.finish(Message(message))
+        await counter(bot, event)
 
 
 @echo.handle()
@@ -53,8 +55,9 @@ async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     else:
         base64_img = get_random_image("echo")
         message = f"[CQ:image,file={base64_img}]"
-        await counter(bot, event)
+        # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
         await ghs.finish(Message(message))
+        await counter(bot, event)
 
 
 # 0点删除今日请求记录
@@ -65,10 +68,11 @@ async def clear_query_times():
 
 # 每日请求色图上限
 def check_query_permission(bot: Bot, event: GroupMessageEvent):
-    qqid = event.get_user_id()
+    qqid = event.user_id
+    groupid = event.group_id
     q = Query()
     return event.get_user_id() not in bot.config.superusers and query_times_today.contains(q.qqid == qqid) and \
-           query_times_today.get(q.qqid == qqid)['times'] >= 10
+           query_times_today.get(q.qqid == qqid and q.groupid == groupid)['times'] >= 10
 
 
 # 获取目录下的随机图片
@@ -85,15 +89,37 @@ def get_random_image(folder):
 
 # 请求量计数
 async def counter(bot: Bot, event: GroupMessageEvent):
-    qqid = event.get_user_id()
+    qqid = event.user_id
+    groupid = event.group_id
     q = Query()
-    if not event.get_user_id() in bot.config.superusers:
+    if not qqid in bot.config.superusers:
         # 如果不是超级管理员 则计数+1
-        if not query_times_today.contains(q.qqid == qqid):
-            query_times_today.insert({'qqid': qqid, 'times': 1})
+        if not query_times_today.contains(q.qqid == qqid and q.groupid == groupid):
+            query_times_today.insert({'qqid': qqid, 'groupid': event.group_id, 'times': 1})
         else:
-            query_times_today.update({'qqid': qqid, 'times': query_times_today.get(q.qqid == qqid)['times'] + 1})
-        if not query_times_all.contains(q.qqid == qqid):
-            query_times_all.insert({'qqid': qqid, 'times': 1})
+            query_times_today.update({'qqid': qqid, 'groupid': event.group_id,
+                                      'times': query_times_today.get(q.qqid == qqid and q.groupid == groupid)['times'] + 1})
+        if not query_times_all.contains(q.qqid == qqid and q.groupid == groupid):
+            query_times_all.insert({'qqid': qqid, 'groupid': event.group_id, 'times': 1})
         else:
-            query_times_all.update({'qqid': qqid, 'times': query_times_all.get(q.qqid == qqid)['times'] + 1})
+            query_times_all.update({'qqid': qqid, 'groupid': event.group_id,
+                                    'times': query_times_all.get(q.qqid == qqid and q.groupid == groupid)['times'] + 1})
+
+
+# 发送秀图
+show_image = on_command('随机社死', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+@show_image.handle()
+async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
+    if event.get_user_id() in bot.config.superusers or event.sender.role == "admin" or event.sender.role == "owner":
+        base64_img = get_random_image("ghs")
+        message = f"[CQ:image,file={base64_img},type=show,id=40001]"
+        await show_image.finish(Message(message))
+    else:
+        await show_image.finish("权限不足，目前只有管理员才能使用")
+
+
+# # 发送色图请求量统计
+# ghs_count = on_command('色图统计', rule=to_me(), priority=5)
+# @ghs_count.handle()
+# async def send_count(bot: Bot, event: Event, state: dict):
+#

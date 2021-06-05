@@ -180,7 +180,7 @@ async def _(bot: Bot, event: Event, state: dict):
         "\n使用中遇到问题欢迎加群反馈，\n" +\
         "群号：629574472\n" +\
         "\n常见问题：https://www.haruka-bot.live/usage/faq.html\n" +\
-        "\n当前刘六六修改的版本：0.2" +\
+        "\n当前刘六六修改的版本：0.4" +\
         "\n有问题直接群里at刘六六反馈"
     await get_version.finish(message)
 

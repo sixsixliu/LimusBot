@@ -7,6 +7,7 @@ from .utils import to_me, get_path, scheduler
 from tinydb import TinyDB, Query
 import time
 import random
+import re
 
 
 d_lim = TinyDB(get_path('temp.json'), encoding='utf-8').table("d_lim")
@@ -61,7 +62,9 @@ good_night = on_command('晚安', rule=to_me(), priority=5)
 async def send_good_night(bot: Bot, event: GroupMessageEvent, state: T_State):
     hour = time.localtime().tm_hour
     if hour >= 22 or hour <= 2:
-        message = event.sender.card + "，晚安。"
+        fil = re.compile(u'[^0-9a-zA-Z\u4e00-\u9fa5.，,。？“”]+', re.UNICODE)
+        name = fil.sub(' ', event.sender.card) or fil.sub(' ', event.sender.nickname)
+        message = fil.sub(' ', name) + "，晚安。"
         message = Message('[CQ:tts,text=' + str(message) + ']')
         await good_night.finish(message)
     elif 17 <= hour < 22:

@@ -107,7 +107,7 @@ async def counter(bot: Bot, event: GroupMessageEvent):
 
 
 # 发送秀图
-show_image = on_command('随机社死', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+show_image = on_command('随机社死', rule=to_me(), priority=5)
 @show_image.handle()
 async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     if event.get_user_id() in bot.config.superusers or event.sender.role == "admin" or event.sender.role == "owner":

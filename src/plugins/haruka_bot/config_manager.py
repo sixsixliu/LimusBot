@@ -180,8 +180,8 @@ async def _(bot: Bot, event: Event, state: dict):
         "\n使用中遇到问题欢迎加群反馈，\n" +\
         "群号：629574472\n" +\
         "\n常见问题：https://www.haruka-bot.live/usage/faq.html\n" +\
-        "\n当前刘六六修改的版本：0.4" +\
-        "\n有问题直接群里at刘六六反馈"
+        "\n当前刘六六修改的版本：0.5" +\
+        "\n项目地址：https://github.com/sixsixliu/LimusBot"
     await get_version.finish(message)
 
 no_permission = on_command(func_list[0],
@@ -210,12 +210,13 @@ async def _(bot: Bot, event: Event, state: dict):
         "随机夸图\n" + \
         "随机影图\n" + \
         "（无需@bot 关键词可自行尝试）\n" + \
+        "晚安（需@bot）\n" + \
         "\n后续计划：\n" \
-        "增加自动爬虫更新色图、" \
-        "刚发过的色图会降低随机权重、" \
+        "色图权重系统、" \
         "增加随机每日lim、" \
         "色图请求量统计、" \
-        "lim辱骂语音（待定）"
+        "lim辱骂语音（待定）、" \
+        "随机然图"
     await help.finish(message)
 
 

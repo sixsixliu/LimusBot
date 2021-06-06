@@ -5,7 +5,7 @@ from pathlib import Path
 
 import nonebot
 from nonebot import get_driver, require
-from nonebot.adapters.cqhttp import Bot, Event, MessageEvent
+from nonebot.adapters.cqhttp import Bot, Event, MessageEvent, GroupMessageEvent
 from nonebot.adapters.cqhttp.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.adapters.cqhttp.exception import ActionFailed, NetworkError
 from nonebot.log import logger
@@ -91,3 +91,9 @@ scheduler = require('nonebot_plugin_apscheduler').scheduler
 # bot 启动时检查 src\data\haruka_bot\ 目录是否存在
 if not Path(get_path()).is_dir():
     Path(get_path()).mkdir(parents=True)
+
+
+def is_lim_group():
+    async def _lim_group(bot: Bot, event: GroupMessageEvent, state: dict):
+        return event.group_id in bot.config.limgroup
+    return Rule(_lim_group)

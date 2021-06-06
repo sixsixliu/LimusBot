@@ -2,7 +2,7 @@ from nonebot import on_command, on_keyword, on_message
 from nonebot.typing import T_State
 from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
-from .utils import to_me, get_path, safe_send, scheduler
+from .utils import to_me, get_path, safe_send, scheduler, is_lim_group
 import random
 import os
 import base64
@@ -13,6 +13,7 @@ image_dir = "./src/data/image/"
 query_times = TinyDB(get_path('query_times.json'), encoding='utf-8')
 query_times_today = query_times.table('today')
 query_times_all = query_times.table('all')
+other_group_count = 0   # 非lim群请求的色图数量
 
 ghs = on_keyword({'随机色图', '随机涩图', '来点色图', '来点涩图', '来张色图', '来张涩图', '给张色图', '给张涩图',
                   '色图time', '涩图time'}, priority=5)
@@ -30,34 +31,40 @@ async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
         base64_img = get_random_image("ghs")
         message = f"[CQ:image,file={base64_img}]"
         # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
-        await ghs.finish(Message(message))
         await counter(bot, event)
+        if event.group_id not in bot.config.limgroup:
+            await promotion(bot, event)
+        await ghs.finish(Message(message))
 
 
 @aqua.handle()
 async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     if check_query_permission(bot, event):
         message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
-        await ghs.finish(message)
+        await aqua.finish(message)
     else:
         base64_img = get_random_image("aqua")
         message = f"[CQ:image,file={base64_img}]"
         # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
-        await ghs.finish(Message(message))
         await counter(bot, event)
+        if event.group_id not in bot.config.limgroup:
+            await promotion(bot, event)
+        await aqua.finish(Message(message))
 
 
 @echo.handle()
 async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
     if check_query_permission(bot, event):
         message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
-        await ghs.finish(message)
+        await echo.finish(message)
     else:
         base64_img = get_random_image("echo")
         message = f"[CQ:image,file={base64_img}]"
         # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
-        await ghs.finish(Message(message))
         await counter(bot, event)
+        if event.group_id not in bot.config.limgroup:
+            await promotion(bot, event)
+        await echo.finish(Message(message))
 
 
 # 0点删除今日请求记录
@@ -107,7 +114,7 @@ async def counter(bot: Bot, event: GroupMessageEvent):
 
 
 # 发送秀图
-show_image = on_command('随机社死', rule=to_me(), priority=5)
+show_image = on_command('随机社死', rule=to_me() & is_lim_group(), priority=5)
 @show_image.handle()
 async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     if event.get_user_id() in bot.config.superusers or event.sender.role == "admin" or event.sender.role == "owner":
@@ -123,3 +130,28 @@ async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
 # @ghs_count.handle()
 # async def send_count(bot: Bot, event: Event, state: dict):
 #
+
+
+async def promotion(bot: Bot, event: GroupMessageEvent):
+    global other_group_count
+    other_group_count += 1
+    # 非lim群发送30张图就推广一次lim
+    if other_group_count > 30:
+        await bot.call_api('send_group_msg', **{
+            'message': "发了这么多色图了，麻烦各位点个关注吧！",
+            'group_id': event.group_id
+        })
+        message = '[CQ:json,data={"app":"com.tencent.structmsg"&#44;"config":{"autosize":true&#44;' \
+                  '"ctime":1622947362&#44;"forward":true&#44;"token":"4b43064926a8881bba3a2547dd8ad4e1"&#44;' \
+                  '"type":"normal"}&#44;"desc":"新闻"&#44;"extra":{"app_type":1&#44;"appid":100951776&#44;' \
+                  '"msg_seq":6970505831977544528&#44;"uin":""}&#44;"meta":{"news":{"action":""&#44;' \
+                  '"android_pkg_name":""&#44;"app_type":1&#44;"appid":100951776&#44;"desc":"你感兴趣的视频都在B站"&#44;' \
+                  '"jumpUrl":"https://b23.tv/8tU8fQ?share_medium=android&amp;share_source=qq&amp;bbid=97BC6A17-CE5F-4980-8C81-E23467D5C03618604infoc&amp;ts=1622947347467"&#44;' \
+                  '"preview":"https://external-30160.picsz.qpic.cn/3572cc74832728cdbdde623efbb3769b/jpg1"&#44;' \
+                  '"source_icon":""&#44;"source_url":""&#44;"tag":"哔哩哔哩"&#44;"title":"莉姆丝OvO的个人空间"}}&#44;' \
+                  '"prompt":"&#91;分享&#93;莉姆丝OvO的个人空间"&#44;"ver":"0.0.0.1"&#44;"view":"news"}]'
+        await bot.call_api('send_group_msg', **{
+            'message': Message(message),
+            'group_id': event.group_id
+        })
+        other_group_count = 0

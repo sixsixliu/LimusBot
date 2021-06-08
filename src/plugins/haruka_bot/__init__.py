@@ -10,6 +10,7 @@ try:
     from . import image
     from . import manager
     from . import auto_msg
+    from . import dd
 except ValueError:
     pass
 

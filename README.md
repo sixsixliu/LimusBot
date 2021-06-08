@@ -32,6 +32,8 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 
 - **随机戳一戳**：群员说话小概率对其戳一戳
 
+- **每日一d**：开启后每天发送一个随机vtuber的介绍 _(数据来源[vtbs.moe](https://github.com/dd-center/vtbs.moe))_
+
 ## 后续计划
 
 - 随机每日lim
@@ -49,6 +51,8 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 - [`NoneBot2`](https://github.com/nonebot/nonebot2)：整也挺好
 
 - [`HarukaBot`](https://github.com/SK-415/HarukaBot)：整确实挺好
+
+- [`vtbs.moe`](https://github.com/dd-center/vtbs.moe)：整得真的挺好
 
 ## 支持与贡献
 

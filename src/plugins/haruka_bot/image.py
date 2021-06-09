@@ -78,8 +78,9 @@ def check_query_permission(bot: Bot, event: GroupMessageEvent):
     qqid = event.user_id
     groupid = event.group_id
     q = Query()
-    return event.get_user_id() not in bot.config.superusers and query_times_today.contains(q.qqid == qqid) and \
-           query_times_today.get(q.qqid == qqid and q.groupid == groupid)['times'] >= 10
+    return str(qqid) not in bot.config.superusers and \
+           query_times_today.contains((q.qqid == qqid) & (q.groupid == groupid)) and \
+           query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))['times'] >= 10
 
 
 # 获取目录下的随机图片
@@ -99,18 +100,20 @@ async def counter(bot: Bot, event: GroupMessageEvent):
     qqid = event.user_id
     groupid = event.group_id
     q = Query()
-    if not qqid in bot.config.superusers:
+    if not str(qqid) in bot.config.superusers:
         # 如果不是超级管理员 则计数+1
-        if not query_times_today.contains(q.qqid == qqid and q.groupid == groupid):
-            query_times_today.insert({'qqid': qqid, 'groupid': event.group_id, 'times': 1})
+        if not query_times_today.contains((q.qqid == qqid) & (q.groupid == groupid)):
+            query_times_today.insert({'qqid': qqid, 'groupid': groupid, 'times': 1})
         else:
-            query_times_today.update({'qqid': qqid, 'groupid': event.group_id,
-                                      'times': query_times_today.get(q.qqid == qqid and q.groupid == groupid)['times'] + 1})
-        if not query_times_all.contains(q.qqid == qqid and q.groupid == groupid):
-            query_times_all.insert({'qqid': qqid, 'groupid': event.group_id, 'times': 1})
+            query_times_today.update({'qqid': qqid, 'groupid': groupid,
+                                      'times': query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))['times'] + 1},
+                                     (q.qqid == qqid) & (q.groupid == groupid))
+        if not query_times_all.contains((q.qqid == qqid) & (q.groupid == groupid)):
+            query_times_all.insert({'qqid': qqid, 'groupid': groupid, 'times': 1})
         else:
-            query_times_all.update({'qqid': qqid, 'groupid': event.group_id,
-                                    'times': query_times_all.get(q.qqid == qqid and q.groupid == groupid)['times'] + 1})
+            query_times_all.update({'qqid': qqid, 'groupid': groupid,
+                                    'times': query_times_all.get((q.qqid == qqid) & (q.groupid == groupid))['times'] + 1},
+                                   (q.qqid == qqid) & (q.groupid == groupid))
 
 
 # 发送秀图

@@ -24,7 +24,8 @@ async def open_everyday_dd(bot: Bot, event: GroupMessageEvent, state: T_State):
     if not everyday_dd_config.contains(q.groupid == event.group_id):
         everyday_dd_config.insert({'groupid': event.group_id, 'd': True, 'bot_id': str(event.self_id)})
     else:
-        everyday_dd_config.update({'groupid': event.group_id, 'd': True, 'bot_id': str(event.self_id)})
+        everyday_dd_config.update({'groupid': event.group_id, 'd': True, 'bot_id': str(event.self_id)},
+                                  q.groupid == event.group_id)
     await open_dd.finish('已开启本群每日一d')
 
 
@@ -35,7 +36,8 @@ async def open_everyday_dd(bot: Bot, event: GroupMessageEvent, state: T_State):
     if not everyday_dd_config.contains(q.groupid == event.group_id):
         everyday_dd_config.insert({'groupid': event.group_id, 'd': False, 'bot_id': str(event.self_id)})
     else:
-        everyday_dd_config.update({'groupid': event.group_id, 'd': False, 'bot_id': str(event.self_id)})
+        everyday_dd_config.update({'groupid': event.group_id, 'd': False, 'bot_id': str(event.self_id)},
+                                  q.groupid == event.group_id)
     await close_dd.finish('已关闭本群每日一d')
 
 

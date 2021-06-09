@@ -1,6 +1,6 @@
-from nonebot import on_command, on_message
+from nonebot import on_command, on_message, on_notice
 from nonebot.typing import T_State
-from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent
+from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, Event
 from .utils import to_me, get_path, scheduler
 from tinydb import TinyDB, Query
 import time
@@ -44,7 +44,7 @@ async def catch_lim_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
             if not d_lim.contains(q.groupid == event.group_id):
                 d_lim.insert({'groupid': event.group_id, 'd': True})
             else:
-                d_lim.update({'groupid': event.group_id, 'd': True})
+                d_lim.update({'groupid': event.group_id, 'd': True}, q.groupid == event.group_id)
             await catch_lim.finish(Message(msg))
 
 

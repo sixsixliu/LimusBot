@@ -25,11 +25,11 @@ class SendImage:
         @send_image.handle()
         async def send(bot: Bot, event: GroupMessageEvent, state: T_State):
             if check_query_permission(bot, event):
-                message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
+                message = Message("[CQ:reply,id=" + str(event.message_id) + "]你今天已经请求10张图了 请明天再来吧")
                 await send_image.finish(message)
             else:
                 base64_img = get_random_image(folder)
-                message = f"[CQ:image,file={base64_img}]"
+                message = "[CQ:reply,id=" + str(event.message_id) + f"][CQ:image,file={base64_img}]"
                 # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
                 await counter(bot, event)
                 if event.group_id not in bot.config.limgroup:

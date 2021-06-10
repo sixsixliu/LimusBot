@@ -15,56 +15,30 @@ query_times_today = query_times.table('today')
 query_times_all = query_times.table('all')
 other_group_count = 0   # 非lim群请求的色图数量
 
-ghs = on_keyword({'随机色图', '随机涩图', '来点色图', '来点涩图', '来张色图', '来张涩图', '给张色图', '给张涩图',
-                  '色图time', '涩图time'}, priority=5)
-aqua = on_keyword({'随机夸图', '来点夸图', '来张夸图', '给张夸图', 'crew', '随机阿夸', '来点阿夸', '来张阿夸',
-                   '给张阿夸'}, priority=5)
-echo = on_keyword({'随机影图', '来点影图', '来张影图', '给张影图', '口口口', '因为echo很色'}, priority=5)
+
+image_keywords = eval(Bot.config.image_keywords)
 
 
-@ghs.handle()
-async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
-    if check_query_permission(bot, event):
-        message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
-        await ghs.finish(message)
-    else:
-        base64_img = get_random_image("ghs")
-        message = f"[CQ:image,file={base64_img}]"
-        # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
-        await counter(bot, event)
-        if event.group_id not in bot.config.limgroup:
-            await promotion(bot, event)
-        await ghs.finish(Message(message))
+class SendImage:
+    def __init__(self, folder, keywords):
+        send_image = on_keyword(keywords, priority=5)
+        @send_image.handle()
+        async def send(bot: Bot, event: GroupMessageEvent, state: T_State):
+            if check_query_permission(bot, event):
+                message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
+                await send_image.finish(message)
+            else:
+                base64_img = get_random_image(folder)
+                message = f"[CQ:image,file={base64_img}]"
+                # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
+                await counter(bot, event)
+                if event.group_id not in bot.config.limgroup:
+                    await promotion(bot, event)
+                await send_image.finish(Message(message))
 
 
-@aqua.handle()
-async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
-    if check_query_permission(bot, event):
-        message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
-        await aqua.finish(message)
-    else:
-        base64_img = get_random_image("aqua")
-        message = f"[CQ:image,file={base64_img}]"
-        # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
-        await counter(bot, event)
-        if event.group_id not in bot.config.limgroup:
-            await promotion(bot, event)
-        await aqua.finish(Message(message))
-
-
-@echo.handle()
-async def send_ghs(bot: Bot, event: GroupMessageEvent, state: T_State):
-    if check_query_permission(bot, event):
-        message = Message("[CQ:at,qq={}]你今天已经请求10张图了 请明天再来吧".format(event.get_user_id()))
-        await echo.finish(message)
-    else:
-        base64_img = get_random_image("echo")
-        message = f"[CQ:image,file={base64_img}]"
-        # message = f"[CQ:cardimage,file={base64_img},source=来自LimusBot]"
-        await counter(bot, event)
-        if event.group_id not in bot.config.limgroup:
-            await promotion(bot, event)
-        await echo.finish(Message(message))
+for key in image_keywords.keys():
+    SendImage(key, image_keywords[key])
 
 
 # 0点删除今日请求记录

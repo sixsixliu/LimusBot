@@ -1,8 +1,10 @@
-# LimusBot
+[![LimusBot](https://socialify.git.ci/sixsixliu/LimusBot/image?description=1&descriptionEditable=%E5%9F%BA%E4%BA%8EHarukaBot%E5%BC%80%E5%8F%91%E7%9A%84%E4%B9%90%E5%AD%90q%E7%BE%A4bot&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fi0.hdslb.com%2Fbfs%2Fface%2F44658dc2c46868a7e96d68d03eb3bf5cc811b2b4.jpg&owner=1&pattern=Floating%20Cogs&stargazers=1&theme=Light)](https://space.bilibili.com/664047468/)
 
-基于[HarukaBot](https://github.com/SK-415/HarukaBot)修改的乐子q群bot
 
 名称来源：[@莉姆丝OvO](https://space.bilibili.com/664047468)
+
+[![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-1056356647-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=FKJxrfNNqHIHu-zpD-s7YDoyvZfnjhDP&amp;jump_from=webapi)
+[![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-599594424-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=pdseITovTpDBhBLPJ8t4fa1QqN8tNEOz&amp;jump_from=webapi)
 
 ## 简介
 
@@ -14,7 +16,7 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 
 > HarukaBot的原有功能请参见[其项目README](https://github.com/SK-415/HarukaBot/blob/master/README.md)
 
-- **随机色图、随机夸图、随机影图**：通过关键词匹配方式发送指定目录下的随机图片，本质都一样，可仿照添加其他事件及关键词
+- **随机色图、随机夸图、随机影图**：通过关键词匹配方式发送指定目录下的随机图片，关键词及目录在配置文件中设置
 
 - **色图请求量记录**：记录了当天每个群员索取色图的次数，以及bot运行以来的总次数
 

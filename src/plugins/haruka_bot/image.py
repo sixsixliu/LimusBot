@@ -7,6 +7,7 @@ import random
 import os
 import base64
 from tinydb import TinyDB, Query
+from .mirage_tank import make_mirage
 
 image_dir = "./src/data/image/"
 
@@ -39,6 +40,30 @@ class SendImage:
 
 for key in image_keywords.keys():
     SendImage(key, image_keywords[key])
+
+
+# 幻影坦克
+mirage = on_command('随机幻影坦克', permission=SUPERUSER, priority=5)
+@mirage.handle()
+async def mirage_tank(bot: Bot, event: GroupMessageEvent, state: T_State):
+    path = os.path.join(image_dir, "ghs")
+    imgs = []
+    for x in os.listdir(path):
+        if x.endswith('jpg') or x.endswith('jpeg') or x.endswith('png'):
+            imgs.append(x)
+    selected_imgs = random.sample(imgs, k=1)
+    file1 = os.path.join(path, selected_imgs[0])
+
+    path = os.path.join(image_dir, "yuki")
+    imgs = []
+    for x in os.listdir(path):
+        if x.endswith('jpg') or x.endswith('jpeg') or x.endswith('png'):
+            imgs.append(x)
+    selected_imgs = random.sample(imgs, k=1)
+    file2 = os.path.join(path, selected_imgs[0])
+    base64_img = make_mirage(file1, file2)
+    message = f"[CQ:image,file={base64_img}]"
+    await mirage.finish(Message(message))
 
 
 # 0点删除今日请求记录

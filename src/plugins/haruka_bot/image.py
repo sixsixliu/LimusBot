@@ -4,6 +4,7 @@ from nonebot.permission import SUPERUSER
 from .utils import to_me, is_lim_group, safe_send
 from .mirage_tank import make_mirage
 from .image_utils import *
+from .auto_msg import repeat_msg_dict
 
 
 image_keywords = eval(Bot.config.image_keywords)
@@ -25,6 +26,7 @@ class SendImage:
                 await counter(bot, event)
                 if event.group_id not in bot.config.limgroup:
                     await promotion(bot, event)
+                del repeat_msg_dict[event.group_id]
                 await send_image.finish(Message(message))
 
 

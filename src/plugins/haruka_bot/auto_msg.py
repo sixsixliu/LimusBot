@@ -25,7 +25,10 @@ async def repeat_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
             # 复读次数大于等于5 则加入复读
             if repeat_msg_dict[groupid][1] >= 5:
                 del repeat_msg_dict[groupid]
-                await repeat.finish(Message(msg))
+                if random.random() > 0.1:
+                    await repeat.finish(Message(msg))
+                else:   # 有几率打断复读
+                    await repeat.finish('打断复读！')
         else:
             repeat_msg_dict[groupid] = [msg, 1]
     else:

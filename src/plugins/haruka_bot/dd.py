@@ -49,7 +49,6 @@ async def everyday_dd():
     if len(vtb_json):
         for group in group_list:
             if group['d']:
-                print(group['groupid'])
                 i = random.randint(0, len(vtb_json)-1)
                 vtb = vtb_json[i]
                 message = '[CQ:image,file=' + url2base64(vtb['topPhoto']) + ']' + '\n每日一d\n昵称：' + vtb['uname'] + '\n签名：' \

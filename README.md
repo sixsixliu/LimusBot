@@ -1,8 +1,10 @@
-# LimusBot
+[![LimusBot](https://socialify.git.ci/sixsixliu/LimusBot/image?description=1&descriptionEditable=%E5%9F%BA%E4%BA%8EHarukaBot%E5%BC%80%E5%8F%91%E7%9A%84%E4%B9%90%E5%AD%90q%E7%BE%A4bot&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fi0.hdslb.com%2Fbfs%2Fface%2F44658dc2c46868a7e96d68d03eb3bf5cc811b2b4.jpg&owner=1&pattern=Floating%20Cogs&stargazers=1&theme=Light)](https://space.bilibili.com/664047468/)
 
-基于[HarukaBot](https://github.com/SK-415/HarukaBot)修改的乐子q群bot
 
 名称来源：[@莉姆丝OvO](https://space.bilibili.com/664047468)
+
+[![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-1056356647-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=FKJxrfNNqHIHu-zpD-s7YDoyvZfnjhDP&amp;jump_from=webapi)
+[![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-599594424-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=pdseITovTpDBhBLPJ8t4fa1QqN8tNEOz&amp;jump_from=webapi)
 
 ## 简介
 

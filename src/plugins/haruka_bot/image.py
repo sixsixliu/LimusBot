@@ -89,16 +89,16 @@ async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
 async def send_today_top():
     image_list = image_rating_today.all()
     if len(image_list):
-        top = image_list[0]
-        for image in image_list:
-            if image['rating'] > top['rating']:
-                top = image
-        base64_img = get_image(top['image'])
-        message = f"[CQ:cardimage,file={base64_img},source=LimusBot每日精选]"
-        group_list = everyday_image_config.all()
-        for group in group_list:
-            if group['status']:
-                await safe_send(group['bot_id'], 'group', group['groupid'], Message(message))
+        image_list = [dict(i) for i in image_list]
+        image_list.sort(key=lambda k: k['rating'], reverse=True)
+        # 发送三张评分最高的
+        for i in range(min(3, len(image_list))):
+            base64_img = get_image(image_list[i]['image'])
+            message = f"[CQ:cardimage,file={base64_img},source=LimusBot每日精选第{i+1}名，指名人数：{image_list[i]['rating']}]"
+            group_list = everyday_image_config.all()
+            for group in group_list:
+                if group['status']:
+                    await safe_send(group['bot_id'], 'group', group['groupid'], Message(message))
     image_rating.drop_table('today')
 
 

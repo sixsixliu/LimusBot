@@ -1,12 +1,15 @@
 import nonebot
 from nonebot.log import logger
+from tinydb import TinyDB
+import time
 
 from .config import Config
-from .utils import safe_send, scheduler
+from .utils import safe_send, scheduler, get_path
 from .bilireq import BiliReq
 
 
 status = {}
+live_history = TinyDB(get_path('history.json'), encoding='utf-8').table("live_history")
 
 @scheduler.scheduled_job('cron', second='*/10', id='live_sched')
 async def live_sched():
@@ -39,4 +42,7 @@ async def live_sched():
                 for sets in push_list:
                     at_msg = '[CQ:at,qq=all] ' if sets['at'] else ''
                     await safe_send(sets['bot_id'], sets['type'], sets['type_id'], at_msg + live_msg)
+                # 直播历史表插入数据
+                live_history.insert({'uid': uid, 'time': time.time()})
             status[uid] = new_status
+

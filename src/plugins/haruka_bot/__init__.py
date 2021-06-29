@@ -11,6 +11,7 @@ try:
     from . import manager
     from . import auto_msg
     from . import dd
+    from . import d_lim
 except ValueError:
     pass
 

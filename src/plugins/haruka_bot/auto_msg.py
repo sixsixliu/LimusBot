@@ -8,8 +8,7 @@ import random
 import re
 
 
-d_lim = TinyDB(get_path('temp.json'), encoding='utf-8').table("d_lim")
-limqq = Bot.config.limqq
+reply_keywords = eval(Bot.config.reply_keywords)
 repeat_msg_dict = {}
 
 # 复读
@@ -25,36 +24,17 @@ async def repeat_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
             # 复读次数大于等于5 则加入复读
             if repeat_msg_dict[groupid][1] >= 5:
                 del repeat_msg_dict[groupid]
-                if random.random() > 0.1:
-                    await repeat.finish(Message(msg))
-                else:   # 有几率打断复读
-                    await repeat.finish('打断复读！')
+                if msg == '打断复读！':
+                    await repeat.finish('打断打断复读！')
+                else:
+                    if random.random() > 0.1:
+                        await repeat.finish(Message(msg))
+                    else:   # 有几率打断复读
+                        await repeat.finish('打断复读！')
         else:
             repeat_msg_dict[groupid] = [msg, 1]
     else:
         repeat_msg_dict[groupid] = [msg, 1]
-
-
-# 每日每个群捕捉一次lim
-catch_lim = on_message(priority=5)
-@catch_lim.handle()
-async def catch_lim_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
-    q = Query()
-    if event.get_user_id() == str(limqq):
-        if not(d_lim.contains(q.groupid == event.group_id) and d_lim.get(q.groupid == event.group_id)['d'] is True):
-            msg = "[CQ:reply,id=" + str(event.message_id) + "]" + \
-                  "莉姆🤤嘿嘿.......莉姆🤤嘿嘿......莉姆🤤嘿嘿.......莉姆🤤嘿嘿......莉姆🤤嘿嘿.......莉姆🤤嘿嘿......"
-            if not d_lim.contains(q.groupid == event.group_id):
-                d_lim.insert({'groupid': event.group_id, 'd': True})
-            else:
-                d_lim.update({'groupid': event.group_id, 'd': True}, q.groupid == event.group_id)
-            await catch_lim.finish(Message(msg))
-
-
-# 5点重置dlim
-@scheduler.scheduled_job('cron', hour='5', minute='0', id='clear_d_times')
-async def clear_d_times():
-    d_lim.update({'d': False})
 
 
 # 晚安语音
@@ -74,11 +54,19 @@ async def send_good_night(bot: Bot, event: GroupMessageEvent, state: T_State):
         await good_night.finish(message)
 
 
-# 群友发消息时随机戳一戳
-poke = on_message(priority=5)
-@poke.handle()
+# 群友发消息时随机戳一戳 & 随机关键词匹配回复
+poke_and_reply = on_message(priority=5)
+@poke_and_reply.handle()
 async def random_poke(bot: Bot, event: GroupMessageEvent, state: T_State):
+    if random.random() < 0.1:
+        msg_list = []
+        for key in reply_keywords.keys():
+            if key in str(event.get_message()):
+                msg_list.extend(reply_keywords[key])
+        if len(msg_list) > 0:
+            time.sleep(1)
+            await poke_and_reply.finish(random.choice(msg_list))
     if random.random() < 0.006:
         message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
         time.sleep(10)
-        await poke.finish(message)
+        await poke_and_reply.finish(message)

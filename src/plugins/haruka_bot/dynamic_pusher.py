@@ -1,13 +1,16 @@
 from datetime import datetime, timedelta
 
 from nonebot.log import logger
+from tinydb import TinyDB
+import time
 
 from .bilireq import BiliReq
 from .config import Config
 from .dynamic import Dynamic
-from .utils import safe_send, scheduler
+from .utils import safe_send, scheduler, get_path
 
 last_time = {}
+dynamic_history = TinyDB(get_path('history.json'), encoding='utf-8').table("dynamic_history")
 
 
 @scheduler.scheduled_job('cron', second='*/10', id='dynamic_sched')
@@ -47,3 +50,5 @@ async def dy_sched():
             for sets in push_list:
                 await safe_send(sets['bot_id'], sets['type'], sets['type_id'], dynamic.message)
             last_time[uid] = dynamic.time
+            # 动态历史表插入数据
+            dynamic_history.insert({'uid': uid, 'time': time.time()})

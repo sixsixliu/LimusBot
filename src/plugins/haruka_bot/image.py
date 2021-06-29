@@ -13,7 +13,7 @@ everyday_image_config = TinyDB(get_path('config.json'), encoding='utf-8').table(
 
 class SendImage:
     def __init__(self, folder, keywords):
-        send_image = on_keyword(keywords, priority=5)
+        send_image = on_keyword(keywords, priority=4)
         @send_image.handle()
         async def send(bot: Bot, event: GroupMessageEvent, state: T_State):
             if check_query_permission(bot, event):
@@ -26,7 +26,6 @@ class SendImage:
                 await counter(bot, event)
                 if event.group_id not in bot.config.limgroup:
                     await promotion(bot, event)
-                del repeat_msg_dict[event.group_id]
                 await send_image.finish(Message(message))
 
 

@@ -41,14 +41,14 @@ def generate_dlim_message(lim_msg: str):
     msg_list = []
     q = Query()
 
-    if len(dynamic_history.all()) > 0:
+    if len(dynamic_history.search(q.uid == str(limuid))) > 0:
         # 上次发动态时间
         last_dynamic = sorted([i.get('time') for i in dynamic_history.search(q.uid == str(limuid))], reverse=True)[0]
         if time.localtime(last_dynamic).tm_mday != time.localtime().tm_mday and time.localtime().tm_hour >= 17:
             # 已经下午5点了且今天没发过动态
             msg_list.append('莉姆今天咋还没发动态捏')
 
-    if len(live_history.all()) > 0:
+    if len(live_history.search(q.uid == str(limuid))) > 0:
         # 上次直播时间
         last_live = sorted([i.get('time') for i in live_history.search(q.uid == str(limuid))], reverse=True)[0]
         if time.localtime(last_live).tm_yday == time.localtime().tm_yday - 1:

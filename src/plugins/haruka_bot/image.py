@@ -4,11 +4,13 @@ from nonebot.permission import SUPERUSER
 from .utils import to_me, is_lim_group, safe_send
 from .mirage_tank import make_mirage
 from .image_utils import *
-from .auto_msg import repeat_msg_dict
+import time
+import requests
 
 
 image_keywords = eval(Bot.config.image_keywords)
 everyday_image_config = TinyDB(get_path('config.json'), encoding='utf-8').table("everyday_image_config")
+ghs_path = './src/data/image/ghs/'
 
 
 class SendImage:
@@ -123,3 +125,21 @@ async def open_everyday_image(bot: Bot, event: GroupMessageEvent, state: T_State
         everyday_image_config.update({'groupid': event.group_id, 'status': False, 'bot_id': str(event.self_id)},
                                   q.groupid == event.group_id)
     await close_image.finish('已关闭本群每日精选图')
+
+
+save_ghs = on_command('保存色图', permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+@save_ghs.handle()
+async def save_ghs_image(bot: Bot, event: GroupMessageEvent, state: T_State):
+    if event.reply and event.reply.message:
+        message = event.reply.message
+        count = 0
+        for msg in message:
+            if '[CQ:image,' in str(msg):
+                url = msg.data['url']
+                img_path = ghs_path + str(int(time.time()*1000)) + '.jpg'
+                t = requests.get(url)
+                with open(img_path, 'wb')as f:
+                    f.write(t.content)
+                f.close()
+                count += 1
+        await save_ghs.finish(f'已保存{count}张色图')

@@ -1,6 +1,7 @@
 from nonebot import on_command, on_message, on_notice
 from nonebot.typing import T_State
-from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, Event
+from nonebot.permission import SUPERUSER
+from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, Event, PrivateMessageEvent
 from .utils import to_me, get_path, scheduler
 from tinydb import TinyDB, Query
 import time
@@ -8,8 +9,9 @@ import random
 import re
 
 
-reply_keywords = eval(Bot.config.reply_keywords)
 repeat_msg_dict = {}
+keywords_db = TinyDB(get_path('keywords.json'), encoding='utf-8').table("keywords_1")
+reply_keywords = keywords_db.all()
 
 # 复读
 repeat = on_message(priority=5)
@@ -59,14 +61,63 @@ poke_and_reply = on_message(priority=5)
 @poke_and_reply.handle()
 async def random_poke(bot: Bot, event: GroupMessageEvent, state: T_State):
     if random.random() < 0.1:
-        msg_list = []
-        for key in reply_keywords.keys():
-            if key in str(event.get_message()):
-                msg_list.extend(reply_keywords[key])
+        msg_list = set()
+        msg = str(event.get_message())
+        for keyword in reply_keywords:
+            if re.match(keyword['regex'], msg, re.S):
+                msg_list.update(eval(keyword['reply']))
         if len(msg_list) > 0:
             time.sleep(1)
-            await poke_and_reply.finish(random.choice(msg_list))
+            await poke_and_reply.finish(msg_list.pop())
     if random.random() < 0.006:
         message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
         time.sleep(10)
         await poke_and_reply.finish(message)
+
+
+# 获取回复关键词列表
+get_all_keywords = on_command('keywords', rule=to_me(), permission=SUPERUSER, priority=4)
+@get_all_keywords.handle()
+async def get_keywords(bot: Bot, event: Event, state: T_State):
+    if event.__class__ == PrivateMessageEvent:
+        message = '现有关键词列表：'
+        for keyword in reply_keywords:
+            message += '\n' + str(keyword.doc_id) + ' ' + keyword['regex'] + ' ' + keyword['reply']
+        await get_all_keywords.finish(message)
+
+
+# 添加关键词  指令：add 正则表达式 [回复语]
+add_keywords = on_command('add', rule=to_me(), permission=SUPERUSER, priority=4)
+@add_keywords.handle()
+async def save_add_keywords(bot: Bot, event: Event, state: T_State):
+    if event.__class__ == PrivateMessageEvent:
+        args = str(event.get_message()).strip().split(' ')
+        if args and len(args) > 1:
+            global reply_keywords
+            q = Query()
+            if keywords_db.contains(q.regex == args[0]):
+                keywords = eval(keywords_db.get(q.regex == args[0])['reply'])
+                keywords.update(args[1:])
+                keywords_db.update({'reply': str(keywords)}, q.regex == args[0])
+            else:
+                keywords_db.insert({'regex': args[0], 'reply': str(set(args[1:]))})
+            keyword = keywords_db.get(q.regex == args[0])
+            reply_keywords = keywords_db.all()
+            message = '已添加关键词：\n' + str(keyword.doc_id) + ' ' + keyword['regex'] + ' ' + keyword['reply']
+            await add_keywords.finish(message)
+
+
+# 删除关键词  指令：delete [序号]
+delete_keywords = on_command('delete', rule=to_me(), permission=SUPERUSER, priority=4)
+@delete_keywords.handle()
+async def save_delete_keywords(bot: Bot, event: Event, state: T_State):
+    if event.__class__ == PrivateMessageEvent:
+        args = str(event.get_message()).strip().split(' ')
+        if args and len(args) > 0:
+            global reply_keywords
+            keywords_db.remove(doc_ids=[int(i) for i in args])
+            reply_keywords = keywords_db.all()
+            message = '现有关键词列表：'
+            for keyword in reply_keywords:
+                message += '\n' + str(keyword.doc_id) + ' ' + keyword['regex'] + ' ' + keyword['reply']
+            await delete_keywords.finish(message)

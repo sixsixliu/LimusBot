@@ -68,7 +68,12 @@ async def random_poke(bot: Bot, event: GroupMessageEvent, state: T_State):
                 msg_list.update(eval(keyword['reply']))
         if len(msg_list) > 0:
             time.sleep(1)
-            await poke_and_reply.finish(msg_list.pop())
+            random_msg = msg_list.pop()
+            if '%poke%' in random_msg:
+                await poke_and_reply.finish(Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']'))
+            else:
+                random_msg = random_msg.replace('%name%', event.sender.card or event.sender.nickname)
+                await poke_and_reply.finish(random_msg)
     if random.random() < 0.006:
         message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
         time.sleep(10)

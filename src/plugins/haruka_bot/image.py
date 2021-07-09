@@ -67,7 +67,7 @@ async def mirage_tank(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 # 发送秀图
-show_image = on_command('随机社死', rule=to_me() & is_lim_group(), priority=5)
+show_image = on_command('随机社死', rule=to_me(), priority=5)
 @show_image.handle()
 async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     if event.get_user_id() in bot.config.superusers or event.sender.role == "admin" or event.sender.role == "owner":

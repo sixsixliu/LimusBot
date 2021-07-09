@@ -49,5 +49,5 @@ async def send_manage_msg(bot: Bot, event: Event, state: T_State):
                             'message': message,
                             'group_id': groupid
                         })
-            mode = 'text'
-            groupids = []
+        mode = 'text'
+        groupids = []

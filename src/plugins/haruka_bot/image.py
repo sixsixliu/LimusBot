@@ -136,15 +136,29 @@ async def save_ghs_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     if event.reply and event.reply.message:
         message = event.reply.message
         count = 0
-        for msg in message:
-            if '[CQ:image,' in str(msg):
-                url = msg.data['url']
-                img_path = ghs_path + "save" + str(int(time.time()*1000)) + '_-_' + \
-                           str(event.reply.sender.nickname) + '_-_' + \
-                           str(event.sender.nickname) + '.jpg'
-                t = requests.get(url)
-                with open(img_path, 'wb')as f:
-                    f.write(t.content)
-                f.close()
-                count += 1
+        if len(message) == 1 and message[0].type == 'forward':  # 回复消息是转发的
+            message = (await bot.call_api(api='get_forward_msg', message_id=message[0].data['id']))['messages']
+            for msg in message:
+                if '[CQ:image,' in msg['content']:
+                    url = msg['content'].split(',url=')[1].split(']')[0]
+                    img_path = ghs_path + "save" + str(int(time.time()*1000)) + '_-_' + \
+                               str(msg['sender']['nickname']) + '_-_' + \
+                               str(event.sender.nickname) + '.jpg'
+                    t = requests.get(url)
+                    with open(img_path, 'wb')as f:
+                        f.write(t.content)
+                    f.close()
+                    count += 1
+        else:   # 回复消息是普通消息
+            for msg in message:
+                if '[CQ:image,' in str(msg):
+                    url = msg.data['url']
+                    img_path = ghs_path + "save" + str(int(time.time()*1000)) + '_-_' + \
+                               str(event.reply.sender.nickname) + '_-_' + \
+                               str(event.sender.nickname) + '.jpg'
+                    t = requests.get(url)
+                    with open(img_path, 'wb')as f:
+                        f.write(t.content)
+                    f.close()
+                    count += 1
         await save_ghs.finish(f'已保存{count}张色图')

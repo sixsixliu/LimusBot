@@ -22,8 +22,11 @@ class SendImage:
                 message = Message("[CQ:reply,id=" + str(event.message_id) + "]你今天已经请求10张图了 请明天再来吧")
                 await send_image.finish(message)
             else:
-                base64_img, image_path = get_random_image(folder)
-                message = "[CQ:reply,id=" + str(event.message_id) + "]回复本条消息可增加此图评分" + f"[CQ:image,file={base64_img}]"
+                base64_img, image_path, image_name = get_random_image(folder)
+                message = "[CQ:reply,id=" + str(event.message_id) + "]"
+                if image_name.startswith('save'):
+                    message += '提供者：' + image_name.split('_-_')[1] + '\n保存者：' + image_name.split('_-_')[2] + '\n'
+                message += "回复本条消息可增加此图评分" + f"[CQ:image,file={base64_img}]"
                 await save_image_message_id(image_path, event.message_id)
                 await counter(bot, event)
                 if event.group_id not in bot.config.limgroup:
@@ -67,11 +70,11 @@ async def mirage_tank(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 # 发送秀图
-show_image = on_command('随机社死', rule=to_me(), priority=5)
+show_image = on_command('随机社死', rule=to_me(), priority=4)
 @show_image.handle()
 async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     if event.get_user_id() in bot.config.superusers or event.sender.role == "admin" or event.sender.role == "owner":
-        base64_img = get_random_image("ghs")
+        base64_img, image_path, image_name = get_random_image("ghs")
         message = f"[CQ:image,file={base64_img},type=show,id=40001]"
         await show_image.finish(Message(message))
     else:
@@ -136,7 +139,9 @@ async def save_ghs_image(bot: Bot, event: GroupMessageEvent, state: T_State):
         for msg in message:
             if '[CQ:image,' in str(msg):
                 url = msg.data['url']
-                img_path = ghs_path + str(int(time.time()*1000)) + '.jpg'
+                img_path = ghs_path + "save" + str(int(time.time()*1000)) + '_-_' + \
+                           str(event.reply.sender.nickname) + '_-_' + \
+                           str(event.sender.nickname) + '.jpg'
                 t = requests.get(url)
                 with open(img_path, 'wb')as f:
                     f.write(t.content)

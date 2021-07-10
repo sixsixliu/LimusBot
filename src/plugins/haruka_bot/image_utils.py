@@ -37,7 +37,8 @@ def get_random_image(folder):
             imgs.append(x)
     selected_imgs = random.sample(imgs, k=1)
     f = open(os.path.join(path, selected_imgs[0]), 'rb')  # 二进制方式打开图文件
-    return "base64://" + str(base64.b64encode(f.read()).decode('ascii')), os.path.join(folder, selected_imgs[0])  # 读取文件内容，转换为base64编码
+    return "base64://" + str(base64.b64encode(f.read()).decode('ascii')), \
+           os.path.join(folder, selected_imgs[0]), os.path.splitext(selected_imgs[0])[0]  # 读取文件内容，转换为base64编码
 
 
 # 获取指定图片

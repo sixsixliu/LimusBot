@@ -12,6 +12,7 @@ try:
     from . import auto_msg
     from . import dd
     from . import d_lim
+    from . import asoul
 except ValueError:
     pass
 

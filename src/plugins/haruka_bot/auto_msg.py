@@ -64,11 +64,11 @@ async def random_poke(bot: Bot, event: GroupMessageEvent, state: T_State):
         msg_list = set()
         msg = str(event.get_message())
         for keyword in reply_keywords:
-            if re.match(keyword['regex'], msg, re.S):
+            if re.search(keyword['regex'], msg, re.S):
                 msg_list.update(eval(keyword['reply']))
         if len(msg_list) > 0:
             time.sleep(1)
-            random_msg = msg_list.pop()
+            random_msg = random.choice(list(msg_list))
             if '%poke%' in random_msg:
                 await poke_and_reply.finish(Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']'))
             else:

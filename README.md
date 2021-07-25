@@ -5,6 +5,7 @@
 
 [![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-1056356647-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=FKJxrfNNqHIHu-zpD-s7YDoyvZfnjhDP&amp;jump_from=webapi)
 [![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-599594424-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=pdseITovTpDBhBLPJ8t4fa1QqN8tNEOz&amp;jump_from=webapi)
+[![qq group](https://img.shields.io/badge/%E7%B2%89%E4%B8%9D%E7%BE%A4-571187055-ff69b4)](https://qm.qq.com/cgi-bin/qm/qr?k=d3FCsYOEvfsY3OZzDDZF0U8u3_snLfNQ&jump_from=webapi)
 
 ## 简介
 
@@ -18,7 +19,7 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 
 - **随机色图、随机夸图、随机影图**：通过关键词匹配方式发送指定目录下的随机图片，关键词及目录在配置文件中设置
 
-- **保存色图**：管理员回复群内色图，bot将保存到图库内
+- **保存色图**：管理员回复群内色图，bot将保存到图库内，回复合并转发的消息可批量保存
 
 - **色图请求量记录**：记录了当天每个群员索取色图的次数，以及bot运行以来的总次数
 
@@ -42,6 +43,8 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 
 - **关键词匹配回复**：管理员私聊bot配置关键词，回复的消息支持戳一戳及成员昵称模板
 
+- **枝网查重**：回复小作文发送“枝网查重”，可查询该小作文复制比。 _(数据来源[ASoulCnki](https://github.com/ASoulCnki/ASoulCnki))_
+
 ## 后续计划
 
 - 随机每日lim
@@ -62,6 +65,8 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 - [`HarukaBot`](https://github.com/SK-415/HarukaBot)：整确实挺好
 
 - [`vtbs.moe`](https://github.com/dd-center/vtbs.moe)：整得真的挺好
+
+- [`ASoulCnki`](https://github.com/ASoulCnki/ASoulCnki)：然然你带我走吧然然
 
 ## 支持与贡献
 

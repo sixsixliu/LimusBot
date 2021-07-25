@@ -29,10 +29,10 @@ async def check_duplicate(bot: Bot, event: GroupMessageEvent, state: T_State):
                 if len(related) > 0:
                     message = '[CQ:reply,id=' + str(event.reply.message_id) + ']'
                     message += '枝网查重结果：\n' \
-                              '总文字复制比：' + str(round(related[0][0]*100, 2)) + '%\n' + \
-                              '原文地址：' + related[0][2] + \
-                              '\n作者：' + related[0][1]['m_name'] + \
-                              '\n发表时间：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(related[0][1]['ctime']))
+                              '总文字复制比：' + str(round(related[0]['rate']*100, 2)) + '%\n' + \
+                              '原文地址：' + related[0]['reply_url'] + \
+                              '\n作者：' + related[0]['reply']['m_name'] + \
+                              '\n发表时间：' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(related[0]['reply']['ctime']))
                     await asoulcnki.finish(Message(message))
                 else:
                     await asoulcnki.finish('没有查到重复小作文捏')

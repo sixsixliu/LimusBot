@@ -98,11 +98,12 @@ async def send_today_top():
         # 发送三张评分最高的
         for i in range(min(3, len(image_list))):
             base64_img = get_image(image_list[i]['image'])
-            message = f"[CQ:cardimage,file={base64_img},source=LimusBot每日精选第{i+1}名，指名人数：{image_list[i]['rating']}]"
-            group_list = everyday_image_config.all()
-            for group in group_list:
-                if group['status']:
-                    await safe_send(group['bot_id'], 'group', group['groupid'], Message(message))
+            if base64_img is not None:
+                message = f"[CQ:cardimage,file={base64_img},source=LimusBot每日精选第{i+1}名，指名人数：{image_list[i]['rating']}]"
+                group_list = everyday_image_config.all()
+                for group in group_list:
+                    if group['status']:
+                        await safe_send(group['bot_id'], 'group', group['groupid'], Message(message))
     image_rating.drop_table('today')
 
 

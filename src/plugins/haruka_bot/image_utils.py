@@ -43,9 +43,13 @@ def get_random_image(folder):
 
 # 获取指定图片
 def get_image(path):
-    path = os.path.join(image_dir, path)
-    f = open(path, 'rb')  # 二进制方式打开图文件
-    return "base64://" + str(base64.b64encode(f.read()).decode('ascii'))  # 读取文件内容，转换为base64编码
+    try:
+        path = os.path.join(image_dir, path)
+        f = open(path, 'rb')  # 二进制方式打开图文件
+    except IOError:
+        return None
+    else:
+        return "base64://" + str(base64.b64encode(f.read()).decode('ascii'))  # 读取文件内容，转换为base64编码
 
 
 # 请求量计数

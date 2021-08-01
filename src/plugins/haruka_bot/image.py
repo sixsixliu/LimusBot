@@ -165,9 +165,9 @@ async def save_ghs_image(bot: Bot, event: GroupMessageEvent, state: T_State):
         await save_ghs.finish(f'已保存{count}张色图')
 
 
-query_time = on_command('色图次数', rule=to_me(), priority=5)
-@query_time.handle()
-async def get_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
+user_query_time = on_command('色图次数', rule=to_me(), priority=5)
+@user_query_time.handle()
+async def get_user_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
     qqid = int(event.user_id)
     groupid = int(event.group_id)
     q = Query()
@@ -193,4 +193,32 @@ async def get_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
             message += '总请求次数：' + str(times_all_group)
         else:
             message += '总请求次数：0'
-    await query_time.finish(Message(message))
+    await user_query_time.finish(Message(message))
+
+
+group_query_time = on_command('色图总次数', permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, rule=to_me(), priority=5)
+@group_query_time.handle()
+async def get_group_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
+    groupid = int(event.group_id)
+    q = Query()
+    result_all = query_times_all.search(q.groupid == groupid)
+    result_all_group = query_times_all.all()
+    message = ''
+    if not result_all and not result_all_group:
+        message += '没有色图请求记录'
+    else:
+        if result_all:
+            times_all = 0
+            for i in result_all:
+                times_all += i['times']
+            message += '自2021年6月9日以来本群共请求色图' + str(times_all) + '次，'
+        else:
+            message += '自2021年6月9日以来本群共请求色图0次，'
+        if result_all_group:
+            times_all_group = 0
+            for i in result_all_group:
+                times_all_group += i['times']
+            message += 'LimusBot加入的所有群共请求色图' + str(times_all_group) + '次。'
+        else:
+            message += 'LimusBot加入的所有群共请求色图0次。'
+    await group_query_time.finish(Message(message))

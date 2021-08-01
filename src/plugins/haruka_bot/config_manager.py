@@ -180,7 +180,7 @@ async def _(bot: Bot, event: Event, state: dict):
         "\n使用中遇到问题欢迎加群反馈，\n" +\
         "群号：629574472\n" +\
         "\n常见问题：https://www.haruka-bot.live/usage/faq.html\n" +\
-        "\n当前刘六六修改的版本：v0.10" +\
+        "\n当前刘六六修改的版本：v0.12" +\
         "\n项目地址：https://github.com/sixsixliu/LimusBot"
     await get_version.finish(message)
 
@@ -214,6 +214,8 @@ async def _(bot: Bot, event: Event, state: dict):
         "保存色图（管理员功能）\n" + \
         "随机社死（管理员功能）\n" + \
         "枝网查重（回复小作文使用）\n" + \
+        "色图次数（需@bot）\n" + \
+        "色图总次数（管理员功能）\n" + \
         "\n后续计划：\n" \
         "色图权重系统、" \
         "增加随机每日lim、" \

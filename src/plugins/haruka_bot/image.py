@@ -163,3 +163,23 @@ async def save_ghs_image(bot: Bot, event: GroupMessageEvent, state: T_State):
                     f.close()
                     count += 1
         await save_ghs.finish(f'已保存{count}张色图')
+
+
+query_time = on_command('色图次数', rule=to_me(), priority=5)
+@query_time.handle()
+async def get_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
+    qqid = int(event.user_id)
+    groupid = int(event.group_id)
+    q = Query()
+    result_today = query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))
+    result_all = query_times_all.get((q.qqid == qqid) & (q.groupid == groupid))
+    message = "[CQ:reply,id=" + str(event.message_id) + "]"
+    if not result_all and not result_today:
+        message += '没有色图请求记录'
+    elif result_all and not result_today:
+        message += '今日请求次数：0\n总请求次数：' + str(result_all['times'])
+    elif not result_all and result_today:
+        message += '今日请求次数：' + str(result_today['times']) + '\n总请求次数：0'
+    else:
+        message += '今日请求次数：' + str(result_today['times']) + '\n总请求次数：' + str(result_all['times'])
+    await query_time.finish(Message(message))

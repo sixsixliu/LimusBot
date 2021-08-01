@@ -173,13 +173,24 @@ async def get_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
     result_today = query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))
     result_all = query_times_all.get((q.qqid == qqid) & (q.groupid == groupid))
+    result_all_group = query_times_all.search(q.qqid == qqid)
     message = "[CQ:reply,id=" + str(event.message_id) + "]"
-    if not result_all and not result_today:
+    if not result_all and not result_today and not result_all_group:
         message += '没有色图请求记录'
-    elif result_all and not result_today:
-        message += '今日请求次数：0\n总请求次数：' + str(result_all['times'])
-    elif not result_all and result_today:
-        message += '今日请求次数：' + str(result_today['times']) + '\n总请求次数：0'
     else:
-        message += '今日请求次数：' + str(result_today['times']) + '\n总请求次数：' + str(result_all['times'])
+        if result_today:
+            message += '今日请求次数：' + str(result_today['times']) + '\n'
+        else:
+            message += '今日请求次数：0\n'
+        if result_all:
+            message += '本群请求次数：' + str(result_all['times']) + '\n'
+        else:
+            message += '本群请求次数：0\n'
+        if result_all_group:
+            times_all_group = 0
+            for i in result_all_group:
+                times_all_group += i['times']
+            message += '总请求次数：' + str(times_all_group)
+        else:
+            message += '总请求次数：0'
     await query_time.finish(Message(message))

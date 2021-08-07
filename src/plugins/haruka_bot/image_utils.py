@@ -14,8 +14,9 @@ other_group_count = 0   # 非lim群请求的色图数量
 image_rating = TinyDB(get_path('image_rating.json'), encoding='utf-8')
 image_rating_today = image_rating.table('today')
 image_rating_all = image_rating.table('all')
-image_message = TinyDB(get_path('temp.json'), encoding='utf-8').table("image_message")
-image_rating_temp = TinyDB(get_path('temp.json'), encoding='utf-8').table("image_rating_temp")
+temp = TinyDB(get_path('temp.json'), encoding='utf-8')
+image_message = temp.table("image_message")
+image_rating_temp = temp.table("image_rating_temp")
 
 
 # 每日请求色图上限
@@ -112,7 +113,7 @@ async def save_image_message_id(image_path, message_id):
 
 # 处理回复事件
 async def plus_rating(reply_message, user_id):
-    message_id = int(reply_message.split('[CQ:reply,id=')[1].split(']回复本条消息')[0])
+    message_id = int(reply_message.split('[CQ:reply,id=')[1].split(']')[0])
     q = Query()
     # 同一条消息同一个人回复只记录一次
     if not image_rating_temp.contains((q.qqid == user_id) & (q.messageid == message_id)):

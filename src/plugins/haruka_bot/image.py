@@ -105,6 +105,8 @@ async def send_today_top():
                     if group['status']:
                         await safe_send(group['bot_id'], 'group', group['groupid'], Message(message))
     image_rating.drop_table('today')
+    temp.drop_table('image_message')
+    temp.drop_table('image_rating_temp')
 
 
 open_image = on_command('开启每日精选图', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)

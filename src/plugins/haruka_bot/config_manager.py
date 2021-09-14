@@ -9,7 +9,7 @@ from .utils import permission_check, to_me
 from .version import __version__
 
 
-add_uid = on_command('添加主播', rule=to_me() & permission_check, priority=5)
+add_uid = on_command('添加主播', rule=to_me() & permission_check, priority=4)
 
 @add_uid.handle()
 async def get_args(bot: Bot, event: Event, state: dict):
@@ -24,7 +24,7 @@ async def _(bot: Bot, event: Event, state: dict):
         await add_uid.finish(await config.add_uid(uid))
 
 
-delete_uid = on_command('删除主播', rule=to_me() & permission_check, priority=5)
+delete_uid = on_command('删除主播', rule=to_me() & permission_check, priority=4)
 
 @delete_uid.handle()
 async def get_args(bot: Bot, event: Event, state: dict):
@@ -39,7 +39,7 @@ async def _(bot: Bot, event: Event, state: dict):
         await delete_uid.finish(await config.delete_uid(uid))
 
 
-uid_list = on_command('主播列表', rule=to_me() & permission_check, priority=5)
+uid_list = on_command('主播列表', rule=to_me() & permission_check, priority=4)
 
 @uid_list.handle()
 async def _(bot: Bot, event: Event, state: dict):
@@ -47,7 +47,7 @@ async def _(bot: Bot, event: Event, state: dict):
         await uid_list.finish(await config.uid_list())
 
 
-dynamic_on = on_command('开启动态', rule=to_me() & permission_check, priority=5)
+dynamic_on = on_command('开启动态', rule=to_me() & permission_check, priority=4)
 
 @dynamic_on.handle()
 async def handle_first_recive(bot: Bot, event: Event, state: dict):
@@ -63,7 +63,7 @@ async def _(bot: Bot, event: Event, state: dict):
     await dynamic_on.finish(msg.replace('name', '开启动态'))
 
 
-dynamic_off = on_command('关闭动态', rule=to_me() & permission_check, priority=5)
+dynamic_off = on_command('关闭动态', rule=to_me() & permission_check, priority=4)
 
 @dynamic_off.handle()
 async def handle_first_recive(bot: Bot, event: Event, state: dict):
@@ -79,7 +79,7 @@ async def _(bot: Bot, event: Event, state: dict):
     await dynamic_off.finish(msg.replace('name', '关闭动态'))
 
 
-live_on = on_command('开启直播', rule=to_me() & permission_check, priority=5)
+live_on = on_command('开启直播', rule=to_me() & permission_check, priority=4)
 
 @live_on.handle()
 async def handle_first_recive(bot: Bot, event: Event, state: dict):
@@ -95,7 +95,7 @@ async def _(bot: Bot, event: Event, state: dict):
     await live_on.finish(msg.replace('name', '开启直播'))
     
 
-live_off = on_command('关闭直播', rule=to_me() & permission_check, priority=5)
+live_off = on_command('关闭直播', rule=to_me() & permission_check, priority=4)
 
 @live_off.handle()
 async def handle_first_recive(bot: Bot, event: Event, state: dict):
@@ -113,7 +113,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 at_on = on_command('开启全体', rule=to_me(), 
     permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, 
-    priority=5)
+    priority=4)
 
 @at_on.handle()
 async def handle_first_recive(bot: Bot, event: Event, state: dict):
@@ -131,7 +131,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 at_off = on_command('关闭全体', rule=to_me(), 
     permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, 
-    priority=5)
+    priority=4)
 
 @at_off.handle()
 async def handle_first_recive(bot: Bot, event: Event, state: dict):
@@ -149,7 +149,7 @@ async def _(bot: Bot, event: Event, state: dict):
 
 permission_on = on_command('开启权限', rule=to_me(), 
     permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, 
-    priority=5)
+    priority=4)
 
 @permission_on.handle()
 async def _(bot: Bot, event: Event, state: dict):
@@ -164,7 +164,7 @@ func_list = [
 
 permission_off = on_command('关闭权限', rule=to_me(), 
     permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, 
-    priority=5)
+    priority=4)
 
 @permission_off.handle()
 async def _(bot: Bot, event: Event, state: dict):
@@ -172,7 +172,7 @@ async def _(bot: Bot, event: Event, state: dict):
         msg = await config.set_permission(False)
     await permission_on.finish(msg.replace('name', '关闭权限'))
 
-get_version = on_command('版本信息', rule=to_me(), priority=5)
+get_version = on_command('版本信息', rule=to_me(), priority=4)
 
 @get_version.handle()
 async def _(bot: Bot, event: Event, state: dict):
@@ -180,7 +180,7 @@ async def _(bot: Bot, event: Event, state: dict):
         "\n使用中遇到问题欢迎加群反馈，\n" +\
         "群号：629574472\n" +\
         "\n常见问题：https://www.haruka-bot.live/usage/faq.html\n" +\
-        "\n当前刘六六修改的版本：v0.12" +\
+        "\n当前刘六六修改的版本：v0.13" +\
         "\n项目地址：https://github.com/sixsixliu/LimusBot"
     await get_version.finish(message)
 
@@ -192,7 +192,7 @@ async def _(bot: Bot, event: Event, state: dict):
     await permission_on.finish("权限不足，目前只有管理员才能使用")
 
 
-help = on_command('帮助', rule=to_me(), priority=5)
+help = on_command('帮助', rule=to_me(), priority=4)
 
 @help.handle()
 async def _(bot: Bot, event: Event, state: dict):
@@ -205,7 +205,7 @@ async def _(bot: Bot, event: Event, state: dict):
             message += " uid"
         message += '、'
     message += "\n命令中的uid需要替换为对应主播的uid，注意是uid不是直播间id\n" + \
-        "\n刘六六增加的功能有：\n" + \
+        "\n刘六六增加的功能有（已经不准了 懒得改了）：\n" + \
         "随机色图\n" + \
         "随机夸图\n" + \
         "随机影图\n" + \
@@ -225,7 +225,7 @@ async def _(bot: Bot, event: Event, state: dict):
     await help.finish(message)
 
 
-group_decrease = on_notice(priority=5)
+group_decrease = on_notice(priority=4)
 
 @group_decrease.handle()
 async def _(bot: Bot, event: GroupDecreaseNoticeEvent, state: dict):
@@ -236,7 +236,7 @@ async def _(bot: Bot, event: GroupDecreaseNoticeEvent, state: dict):
 
 
 # login = on_command('测试登录', rule=to_me(), permission=SUPERUSER, 
-#     priority=5)
+#     priority=4)
 
 # @login.handle()
 # async def _(bot: Bot, event: Event, state: dict):

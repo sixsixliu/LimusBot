@@ -17,7 +17,7 @@ def url2base64(url):
     return "base64://" + str(base64.b64encode(requests.get(url).content).decode('ascii'))
 
 
-open_dd = on_command('开启每日一d', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+open_dd = on_command('开启每日一d', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
 @open_dd.handle()
 async def open_everyday_dd(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
@@ -29,7 +29,7 @@ async def open_everyday_dd(bot: Bot, event: GroupMessageEvent, state: T_State):
     await open_dd.finish('已开启本群每日一d')
 
 
-close_dd = on_command('关闭每日一d', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+close_dd = on_command('关闭每日一d', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
 @close_dd.handle()
 async def open_everyday_dd(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()

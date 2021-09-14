@@ -1,6 +1,7 @@
-from nonebot import on_command, on_keyword, on_message
+from nonebot import on_command, on_keyword, on_message, on_notice
 from nonebot.typing import T_State
 from nonebot.permission import SUPERUSER
+from nonebot.adapters.cqhttp import Event
 from .utils import to_me, is_lim_group, safe_send
 from .mirage_tank import make_mirage
 from .image_utils import *
@@ -13,9 +14,9 @@ everyday_image_config = TinyDB(get_path('config.json'), encoding='utf-8').table(
 ghs_path = './src/data/image/ghs/'
 
 
-class SendImage:
+class ImageController:
     def __init__(self, folder, keywords):
-        send_image = on_keyword(keywords, priority=4)
+        send_image = on_keyword(keywords[0], priority=4)
         @send_image.handle()
         async def send(bot: Bot, event: GroupMessageEvent, state: T_State):
             if check_query_permission(bot, event):
@@ -27,26 +28,63 @@ class SendImage:
                 if image_name.startswith('save'):
                     message += '提供者：' + image_name.split('_-_')[1] + '\n保存者：' + image_name.split('_-_')[2] + '\n'
                 message += "回复本条消息可增加此图评分" + f"[CQ:image,file={base64_img}]"
-                await save_image_message_id(image_path, event.message_id)
                 await counter(bot, event)
                 if event.group_id not in bot.config.limgroup:
                     await promotion(bot, event)
-                await send_image.finish(Message(message))
+                # await send_image.finish(Message(message))
+                new_msg_id = await bot.call_api('send_group_msg', **{
+                    'message': Message(message),
+                    'group_id': event.group_id
+                })
+                new_msg_id = new_msg_id['message_id']
+                await save_image_message_id(image_path, new_msg_id, event.message_id)
+
+        if len(keywords) > 1:
+            save_image = on_keyword(keywords[1], permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
+            @save_image.handle()
+            async def save(bot: Bot, event: GroupMessageEvent, state: T_State):
+                if event.reply and event.reply.message:
+                    message = event.reply.message
+                    count = 0
+                    img_list = []
+                    if len(message) == 1 and message[0].type == 'forward':  # 回复消息是转发的
+                        message = (await bot.call_api(api='get_forward_msg', message_id=message[0].data['id']))['messages']
+                        for msg in message:
+                            for new_msg in Message(msg['content']):
+                                if '[CQ:image,' in str(new_msg):
+                                    img_list.append(new_msg.data['url'])
+                    else:  # 回复消息是普通消息
+                        for msg in message:
+                            if '[CQ:image,' in str(msg):
+                                img_list.append(msg.data['url'])
+                    for url in img_list:
+                        img_dir = os.path.join(image_dir, folder)
+                        if not os.path.exists(img_dir):
+                            os.mkdir(img_dir)
+                        img_path = os.path.join(img_dir, "save" + str(int(time.time() * 1000)) + '_-_' + \
+                                   str(event.reply.sender.nickname) + '_-_' + \
+                                   str(event.sender.nickname) + '.jpg')
+                        t = requests.get(url)
+                        with open(img_path, 'wb')as f:
+                            f.write(t.content)
+                        f.close()
+                        count += 1
+                    await save_image.finish(f'已保存{count}张' + keywords[2])
 
 
 for key in image_keywords.keys():
-    SendImage(key, image_keywords[key])
+    ImageController(key, image_keywords[key])
 
 
 rating = on_message(rule=to_me(), priority=5)
 @rating.handle()
 async def get_rating(bot: Bot, event: GroupMessageEvent, state: T_State):
     if event.reply and '回复本条消息可增加此图评分' in str(event.reply.message):
-        await plus_rating(str(event.reply.message), event.user_id)
+        await plus_rating(event.reply.message_id, event.user_id)
 
 
 # 幻影坦克
-mirage = on_command('随机幻影坦克', permission=SUPERUSER, priority=5)
+mirage = on_command('随机幻影坦克', permission=SUPERUSER, priority=4)
 @mirage.handle()
 async def mirage_tank(bot: Bot, event: GroupMessageEvent, state: T_State):
     path = os.path.join(image_dir, "ghs")
@@ -81,13 +119,6 @@ async def send_show_image(bot: Bot, event: GroupMessageEvent, state: T_State):
         await show_image.finish("权限不足，目前只有管理员才能使用")
 
 
-# # 发送色图请求量统计
-# ghs_count = on_command('色图统计', rule=to_me(), priority=5)
-# @ghs_count.handle()
-# async def send_count(bot: Bot, event: Event, state: dict):
-#
-
-
 # 大图模式发送当天评分最高的图
 @scheduler.scheduled_job('cron', hour='0', minute='0', id='send_today_top')
 async def send_today_top():
@@ -109,7 +140,7 @@ async def send_today_top():
     temp.drop_table('image_rating_temp')
 
 
-open_image = on_command('开启每日精选图', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+open_image = on_command('开启每日精选图', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
 @open_image.handle()
 async def open_everyday_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
@@ -121,7 +152,7 @@ async def open_everyday_image(bot: Bot, event: GroupMessageEvent, state: T_State
     await open_image.finish('已开启本群每日精选图 将在每日24时发送')
 
 
-close_image = on_command('关闭每日精选图', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
+close_image = on_command('关闭每日精选图', rule=to_me(), permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
 @close_image.handle()
 async def open_everyday_image(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
@@ -133,45 +164,7 @@ async def open_everyday_image(bot: Bot, event: GroupMessageEvent, state: T_State
     await close_image.finish('已关闭本群每日精选图')
 
 
-save_ghs = on_command('保存色图', permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=5)
-@save_ghs.handle()
-async def save_ghs_image(bot: Bot, event: GroupMessageEvent, state: T_State):
-    if event.reply and event.reply.message:
-        message = event.reply.message
-        count = 0
-        img_list = []
-        if len(message) == 1 and message[0].type == 'forward':  # 回复消息是转发的
-            message = (await bot.call_api(api='get_forward_msg', message_id=message[0].data['id']))['messages']
-            for msg in message:
-                for new_msg in Message(msg['content']):
-                    if '[CQ:image,' in str(new_msg):
-                        img_list.append(new_msg.data['url'])
-                        # url = new_msg['content'].split(',url=')[1].split(']')[0]
-                        # img_path = ghs_path + "save" + str(int(time.time()*1000)) + '_-_' + \
-                        #            str(new_msg['sender']['nickname']) + '_-_' + \
-                        #            str(event.sender.nickname) + '.jpg'
-                        # t = requests.get(url)
-                        # with open(img_path, 'wb')as f:
-                        #     f.write(t.content)
-                        # f.close()
-                        # count += 1
-        else:   # 回复消息是普通消息
-            for msg in message:
-                if '[CQ:image,' in str(msg):
-                    img_list.append(msg.data['url'])
-        for url in img_list:
-            img_path = ghs_path + "save" + str(int(time.time()*1000)) + '_-_' + \
-                       str(event.reply.sender.nickname) + '_-_' + \
-                       str(event.sender.nickname) + '.jpg'
-            t = requests.get(url)
-            with open(img_path, 'wb')as f:
-                f.write(t.content)
-            f.close()
-            count += 1
-        await save_ghs.finish(f'已保存{count}张色图')
-
-
-user_query_time = on_command('色图次数', rule=to_me(), priority=5)
+user_query_time = on_command('色图次数', rule=to_me(), priority=4)
 @user_query_time.handle()
 async def get_user_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
     qqid = int(event.user_id)
@@ -202,7 +195,7 @@ async def get_user_query_time(bot: Bot, event: GroupMessageEvent, state: T_State
     await user_query_time.finish(Message(message))
 
 
-group_query_time = on_command('色图总次数', permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, rule=to_me(), priority=5)
+group_query_time = on_command('色图总次数', permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, rule=to_me(), priority=4)
 @group_query_time.handle()
 async def get_group_query_time(bot: Bot, event: GroupMessageEvent, state: T_State):
     groupid = int(event.group_id)
@@ -228,3 +221,14 @@ async def get_group_query_time(bot: Bot, event: GroupMessageEvent, state: T_Stat
         else:
             message += 'LimusBot加入的所有群共请求色图0次。'
     await group_query_time.finish(Message(message))
+
+
+# 监听notice，请求色图消息撤回时bot也会撤回色图
+recall = on_notice(priority=4)
+@recall.handle()
+async def check_image_request_recall(bot: Bot, event: Event, state: T_State):
+    if event.notice_type == 'group_recall':
+        q = Query()
+        if image_message.contains(q.request_msg == event.message_id):
+            img_msg_id = image_message.get(q.request_msg == event.message_id)['message']
+            await bot.call_api(api='delete_msg', message_id=img_msg_id)

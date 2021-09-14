@@ -40,7 +40,7 @@ async def repeat_fun(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 # 晚安语音
-good_night = on_command('晚安', rule=to_me(), priority=5)
+good_night = on_command('晚安', rule=to_me(), priority=4)
 @good_night.handle()
 async def send_good_night(bot: Bot, event: GroupMessageEvent, state: T_State):
     hour = time.localtime().tm_hour

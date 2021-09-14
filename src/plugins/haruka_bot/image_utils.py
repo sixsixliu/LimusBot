@@ -107,13 +107,12 @@ async def promotion(bot: Bot, event: GroupMessageEvent):
 
 
 # 保存图片路径与message_id的对应关系
-async def save_image_message_id(image_path, message_id):
-    image_message.insert({'image': image_path, 'message': message_id})
+async def save_image_message_id(image_path, message_id, request_msg_id):
+    image_message.insert({'image': image_path, 'message': message_id, 'request_msg': request_msg_id})
 
 
 # 处理回复事件
-async def plus_rating(reply_message, user_id):
-    message_id = int(reply_message.split('[CQ:reply,id=')[1].split(']')[0])
+async def plus_rating(message_id: int, user_id: int):
     q = Query()
     # 同一条消息同一个人回复只记录一次
     if not image_rating_temp.contains((q.qqid == user_id) & (q.messageid == message_id)):

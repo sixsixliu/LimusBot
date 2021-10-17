@@ -9,8 +9,6 @@ import re
 
 
 d_lim = TinyDB(get_path('temp.json'), encoding='utf-8').table("d_lim")
-dynamic_history = TinyDB(get_path('history.json'), encoding='utf-8').table("dynamic_history")
-live_history = TinyDB(get_path('history.json'), encoding='utf-8').table("live_history")
 limqq = Bot.config.limqq
 limuid = Bot.config.limuid
 catch_lim_keywords = eval(Bot.config.catch_lim_keywords)
@@ -40,7 +38,8 @@ async def clear_d_times():
 def generate_dlim_message(lim_msg: str):
     msg_list = []
     q = Query()
-
+    dynamic_history = TinyDB(get_path('history.json'), encoding='utf-8').table("dynamic_history")
+    live_history = TinyDB(get_path('history.json'), encoding='utf-8').table("live_history")
     if len(dynamic_history.search(q.uid == str(limuid))) > 0:
         # 上次发动态时间
         last_dynamic = sorted([i.get('time') for i in dynamic_history.search(q.uid == str(limuid))], reverse=True)[0]

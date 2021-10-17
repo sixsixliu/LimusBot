@@ -10,6 +10,7 @@ from .bilireq import BiliReq
 
 status = {}
 live_history = TinyDB(get_path('history.json'), encoding='utf-8').table("live_history")
+end_live_history = TinyDB(get_path('history.json'), encoding='utf-8').table("end_live_history")
 
 @scheduler.scheduled_job('cron', second='*/10', id='live_sched')
 async def live_sched():
@@ -43,6 +44,14 @@ async def live_sched():
                     at_msg = '[CQ:at,qq=all] ' if sets['at'] else ''
                     await safe_send(sets['bot_id'], sets['type'], sets['type_id'], at_msg + live_msg)
                 # 直播历史表插入数据
-                live_history.insert({'uid': uid, 'time': time.time()})
+                live_history.insert({'uid': uid, 'time': int(time.time())})
+            elif new_status != old_status and not new_status:
+                name = info['uname']
+                end_msg = f"{name} 下播啦！"
+                push_list = config.get_push_list(uid, 'live')
+                for sets in push_list:
+                    await safe_send(sets['bot_id'], sets['type'], sets['type_id'], end_msg)
+                # 下播历史表插入数据
+                end_live_history.insert({'uid': uid, 'time': int(time.time())})
             status[uid] = new_status
 

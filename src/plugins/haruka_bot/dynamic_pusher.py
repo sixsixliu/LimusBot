@@ -51,4 +51,4 @@ async def dy_sched():
                 await safe_send(sets['bot_id'], sets['type'], sets['type_id'], dynamic.message)
             last_time[uid] = dynamic.time
             # 动态历史表插入数据
-            dynamic_history.insert({'uid': uid, 'time': time.time()})
+            dynamic_history.insert({'uid': uid, 'time': int(time.time())})

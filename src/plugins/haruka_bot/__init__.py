@@ -13,6 +13,7 @@ try:
     from . import dd
     from . import d_lim
     from . import asoul
+    from . import predict
 except ValueError:
     pass
 

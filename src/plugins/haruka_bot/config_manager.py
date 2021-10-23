@@ -180,7 +180,7 @@ async def _(bot: Bot, event: Event, state: dict):
         "\n使用中遇到问题欢迎加群反馈，\n" +\
         "群号：629574472\n" +\
         "\n常见问题：https://www.haruka-bot.live/usage/faq.html\n" +\
-        "\n当前刘六六修改的版本：v0.13" +\
+        "\n当前刘六六修改的版本：v0.15" +\
         "\n项目地址：https://github.com/sixsixliu/LimusBot"
     await get_version.finish(message)
 
@@ -205,23 +205,16 @@ async def _(bot: Bot, event: Event, state: dict):
             message += " uid"
         message += '、'
     message += "\n命令中的uid需要替换为对应主播的uid，注意是uid不是直播间id\n" + \
-        "\n刘六六增加的功能有（已经不准了 懒得改了）：\n" + \
-        "随机色图\n" + \
-        "随机夸图\n" + \
-        "随机影图\n" + \
-        "（无需@bot 关键词可自行尝试）\n" + \
-        "晚安（需@bot）\n" + \
+        "\n刘六六增加的功能有：\n" + \
+        "随机色图、随机夸图、随机影图等（无需@bot 关键词可自行尝试 部分色图有次数限制 可使用色图次数功能查询剩余次数）\n" + \
         "保存色图（管理员功能）\n" + \
+        "晚安（需@bot）\n" + \
         "随机社死（管理员功能）\n" + \
         "枝网查重（回复小作文使用）\n" + \
         "色图次数（需@bot）\n" + \
-        "色图总次数（管理员功能）\n" + \
-        "\n后续计划：\n" \
-        "色图权重系统、" \
-        "增加随机每日lim、" \
-        "色图请求量统计、" \
-        "lim辱骂语音（待定）、" \
-        "随机然图"
+        "色图总次数（管理员功能需@bot）\n" + \
+        "直播概率\n" + \
+        "签到" + \
     await help.finish(message)
 
 

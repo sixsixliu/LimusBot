@@ -16,11 +16,11 @@ ghs_path = './src/data/image/ghs/'
 
 class ImageController:
     def __init__(self, folder, keywords):
-        send_image = on_keyword(keywords[0], priority=4)
+        send_image = on_keyword(keywords[1], priority=4)
         @send_image.handle()
         async def send(bot: Bot, event: GroupMessageEvent, state: T_State):
-            if check_query_permission(bot, event):
-                message = Message("[CQ:reply,id=" + str(event.message_id) + "]你今天已经请求10张图了 请明天再来吧")
+            if keywords[0] and not check_query_permission(bot, event):
+                message = Message("[CQ:reply,id=" + str(event.message_id) + "]请求次数已用完")
                 await send_image.finish(message)
             else:
                 base64_img, image_path, image_name = get_random_image(folder)
@@ -28,7 +28,7 @@ class ImageController:
                 if image_name.startswith('save'):
                     message += '提供者：' + image_name.split('_-_')[1] + '\n保存者：' + image_name.split('_-_')[2] + '\n'
                 message += "回复本条消息可增加此图评分" + f"[CQ:image,file={base64_img}]"
-                await counter(bot, event)
+                await counter(bot, event, keywords[0])
                 if event.group_id not in bot.config.limgroup:
                     await promotion(bot, event)
                 # await send_image.finish(Message(message))
@@ -39,8 +39,8 @@ class ImageController:
                 new_msg_id = new_msg_id['message_id']
                 await save_image_message_id(image_path, new_msg_id, event.message_id)
 
-        if len(keywords) > 1:
-            save_image = on_keyword(keywords[1], permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
+        if len(keywords) > 2:
+            save_image = on_keyword(keywords[2], permission=GROUP_OWNER | GROUP_ADMIN | SUPERUSER, priority=4)
             @save_image.handle()
             async def save(bot: Bot, event: GroupMessageEvent, state: T_State):
                 if event.reply and event.reply.message:
@@ -69,7 +69,7 @@ class ImageController:
                             f.write(t.content)
                         f.close()
                         count += 1
-                    await save_image.finish(f'已保存{count}张' + keywords[2])
+                    await save_image.finish(f'已保存{count}张' + keywords[3])
 
 
 for key in image_keywords.keys():
@@ -170,10 +170,13 @@ async def get_user_query_time(bot: Bot, event: GroupMessageEvent, state: T_State
     qqid = int(event.user_id)
     groupid = int(event.group_id)
     q = Query()
+    available = available_times.get(q.qqid == qqid)
     result_today = query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))
     result_all = query_times_all.get((q.qqid == qqid) & (q.groupid == groupid))
     result_all_group = query_times_all.search(q.qqid == qqid)
     message = "[CQ:reply,id=" + str(event.message_id) + "]"
+    if available:
+        message += '剩余可用次数：' + str(available['times']) + '\n'
     if not result_all and not result_today and not result_all_group:
         message += '没有色图请求记录'
     else:

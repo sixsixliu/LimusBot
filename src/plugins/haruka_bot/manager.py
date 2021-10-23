@@ -4,6 +4,7 @@ from nonebot.typing import T_State
 from nonebot.adapters.cqhttp import Bot, Message, PrivateMessageEvent
 from nonebot.permission import SUPERUSER
 from .utils import to_me
+import random
 
 groupids = []
 mode = 'text'
@@ -51,3 +52,9 @@ async def send_manage_msg(bot: Bot, event: Event, state: T_State):
                         })
         mode = 'text'
         groupids = []
+
+
+echo = on_command('echo', rule=to_me(), priority=0)
+@echo.handle()
+async def reject_echo(bot: Bot, event: Event, state: T_State):
+    await echo.finish(random.choice(["别echo了", "echo😭😭😭我滴echo😭😭😭", "没有echo"]))

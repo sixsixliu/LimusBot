@@ -17,16 +17,20 @@ image_rating_all = image_rating.table('all')
 temp = TinyDB(get_path('temp.json'), encoding='utf-8')
 image_message = temp.table("image_message")
 image_rating_temp = temp.table("image_rating_temp")
+available_times = TinyDB(get_path('available_times.json'), encoding='utf-8').table("ghs_times")
 
 
 # 每日请求色图上限
 def check_query_permission(bot: Bot, event: GroupMessageEvent):
-    qqid = event.user_id
-    groupid = event.group_id
     q = Query()
-    return str(qqid) not in bot.config.superusers and \
-           query_times_today.contains((q.qqid == qqid) & (q.groupid == groupid)) and \
-           query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))['times'] >= 10
+    qqid = event.user_id
+    # groupid = event.group_id
+    # return str(qqid) not in bot.config.superusers and \
+    #        query_times_today.contains((q.qqid == qqid) & (q.groupid == groupid)) and \
+    #        query_times_today.get((q.qqid == qqid) & (q.groupid == groupid))['times'] >= 10
+    return str(qqid) in bot.config.superusers or \
+           (available_times.contains(q.qqid == qqid) and
+            available_times.get(q.qqid == qqid)['times'] > 0)
 
 
 # 获取目录下的随机图片
@@ -54,7 +58,7 @@ def get_image(path):
 
 
 # 请求量计数
-async def counter(bot: Bot, event: GroupMessageEvent):
+async def counter(bot: Bot, event: GroupMessageEvent, is_limited):
     qqid = event.user_id
     groupid = event.group_id
     q = Query()
@@ -72,6 +76,11 @@ async def counter(bot: Bot, event: GroupMessageEvent):
             query_times_all.update({'qqid': qqid, 'groupid': groupid,
                                     'times': query_times_all.get((q.qqid == qqid) & (q.groupid == groupid))['times'] + 1},
                                    (q.qqid == qqid) & (q.groupid == groupid))
+        if is_limited:
+            # 扣除可用次数
+            available = available_times.get(q.qqid == qqid)['times']
+            available = available - 1 if available > 0 else available
+            available_times.update({'qqid': qqid, 'times': available}, q.qqid == qqid)
 
 
 # 0点删除今日请求记录

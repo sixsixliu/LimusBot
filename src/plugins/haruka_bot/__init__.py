@@ -2,18 +2,8 @@ import nonebot
 
 try:
     nonebot.get_driver()
-    from . import utils
-    from . import config_manager
-    from . import live_pusher
-    from . import dynamic_pusher
-    from . import auto_agree
-    from . import image
-    from . import manager
-    from . import auto_msg
-    from . import dd
-    from . import d_lim
-    from . import asoul
-    from . import predict
+    from . import utils, config_manager, live_pusher, dynamic_pusher, auto_agree, image, manager, auto_msg, dd, \
+        d_lim, asoul, predict, reward
 except ValueError:
     pass
 

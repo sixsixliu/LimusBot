@@ -12,6 +12,7 @@ import requests
 image_keywords = eval(Bot.config.image_keywords)
 everyday_image_config = TinyDB(get_path('config.json'), encoding='utf-8').table("everyday_image_config")
 ghs_path = './src/data/image/ghs/'
+warn_map = {}
 
 
 class ImageController:
@@ -20,8 +21,11 @@ class ImageController:
         @send_image.handle()
         async def send(bot: Bot, event: GroupMessageEvent, state: T_State):
             if keywords[0] and not check_query_permission(bot, event):
-                message = Message("[CQ:reply,id=" + str(event.message_id) + "]请求次数已用完")
-                await send_image.finish(message)
+                global warn_map
+                if event.user_id not in warn_map.keys():
+                    message = Message("[CQ:reply,id=" + str(event.message_id) + "]请求次数已用完")
+                    warn_map[event.user_id] = True
+                    await send_image.finish(message)
             else:
                 base64_img, image_path, image_name = get_random_image(folder)
                 message = "[CQ:reply,id=" + str(event.message_id) + "]"
@@ -37,6 +41,7 @@ class ImageController:
                     'group_id': event.group_id
                 })
                 new_msg_id = new_msg_id['message_id']
+                del warn_map[event.user_id]
                 await save_image_message_id(image_path, new_msg_id, event.message_id)
 
         if len(keywords) > 2:

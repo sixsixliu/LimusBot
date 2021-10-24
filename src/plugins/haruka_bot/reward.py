@@ -15,7 +15,7 @@ ghs_reward = on_message(priority=5)
 @ghs_reward.handle()
 async def reward(bot: Bot, event: GroupMessageEvent, state: T_State):
     rand = random.random()
-    if rand < 0.01:
+    if rand < 0.006:
         qqid = event.user_id
         if not str(qqid) in bot.config.superusers:
             q = Query()
@@ -36,7 +36,7 @@ async def qiandao(bot: Bot, event: GroupMessageEvent, state: T_State):
     q = Query()
     message = f'[CQ:reply,id={str(event.message_id)}]'
     if not sign_history.contains(q.qqid == qqid):
-        times = random.randint(1, 6)
+        times = random.randint(1, 5)
         if not available_times.contains(q.qqid == qqid):
             available_times.insert({'qqid': qqid, 'times': times})
         else:

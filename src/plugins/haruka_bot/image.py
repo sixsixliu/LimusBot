@@ -41,7 +41,8 @@ class ImageController:
                     'group_id': event.group_id
                 })
                 new_msg_id = new_msg_id['message_id']
-                del warn_map[event.user_id]
+                if event.user_id in warn_map.keys():
+                    del warn_map[event.user_id]
                 await save_image_message_id(image_path, new_msg_id, event.message_id)
 
         if len(keywords) > 2:

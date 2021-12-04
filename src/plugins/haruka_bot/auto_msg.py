@@ -2,7 +2,7 @@ from nonebot import on_command, on_message, on_notice
 from nonebot.typing import T_State
 from nonebot.permission import SUPERUSER
 from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, Event, PrivateMessageEvent
-from .utils import to_me, get_path, scheduler
+from .utils import to_me, get_path, scheduler, is_poke
 from tinydb import TinyDB, Query
 import time
 import random
@@ -126,3 +126,10 @@ async def save_delete_keywords(bot: Bot, event: Event, state: T_State):
             for keyword in reply_keywords:
                 message += '\n' + str(keyword.doc_id) + ' ' + keyword['regex'] + ' ' + keyword['reply']
             await delete_keywords.finish(message)
+
+
+reply_poke = on_notice(priority=4, rule=is_poke() and to_me())
+@reply_poke.handle()
+async def reply_poke_notice(bot: Bot, event: Event, state: T_State):
+    message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
+    await reply_poke.finish(message)

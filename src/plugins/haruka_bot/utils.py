@@ -97,3 +97,9 @@ def is_lim_group():
     async def _lim_group(bot: Bot, event: GroupMessageEvent, state: dict):
         return event.group_id in bot.config.limgroup
     return Rule(_lim_group)
+
+
+def is_poke():
+    async def _poke(bot: Bot, event: Event, state: dict):
+        return hasattr(event, "sub_type") and event.sub_type == "poke"
+    return Rule(_poke)

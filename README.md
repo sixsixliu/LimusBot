@@ -47,8 +47,21 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 
 - **跟随撤回**：若请求色图的消息被撤回，bot也会将色图撤回
 
+- **下播提醒**：开播有提醒，那下播也提醒一下
+
+- **签到及色图限制等**：通过签到和发言幸运掉落色图次数，可以在配置文件设置该种图是否具有限制
+
+- **直播概率**：计算莉姆丝今日直播概率，对别的主播没用
+
+- **成分查询**：发送成分查询+b站昵称，返回关注的vtb _(数据来源[成分姬](https://github.com/XiaoMiku01/BiliFansBot))_
+
+- **回戳**：被戳一戳时回戳（目前有bug，涉及到bot的群事件发生时会来回戳自己，暂时懒得修，而且俩bot在一个群触发了会爆炸）
+
+- **查牌子**：通过粉丝牌子名称查询up主，可模糊查询 _(数据来源[粉丝勋章墙](https://bili.jjnnnh.website/medal))_
+
 ## 后续计划
 
+- 其实已经完全没有计划了 想到就加
 - 随机每日lim
 - 随机lim语音条
 - 刚发过的色图会降低随机权重
@@ -68,6 +81,10 @@ LimusBot在其基础上做了修改，增加了如随机色图、复读机等功
 - [`vtbs.moe`](https://github.com/dd-center/vtbs.moe)：整得真的挺好
 
 - [`ASoulCnki`](https://github.com/ASoulCnki/ASoulCnki)：然然你带我走吧然然
+
+- [`成分姬`](https://github.com/XiaoMiku01/BiliFansBot)：这代码写的确实够简陋的
+
+- [`粉丝勋章墙`](https://bili.jjnnnh.website/medal)：网站有点卡
 
 ## 支持与贡献
 

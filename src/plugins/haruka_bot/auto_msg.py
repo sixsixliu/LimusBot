@@ -131,5 +131,6 @@ async def save_delete_keywords(bot: Bot, event: Event, state: T_State):
 reply_poke = on_notice(priority=4, rule=is_poke() and to_me())
 @reply_poke.handle()
 async def reply_poke_notice(bot: Bot, event: Event, state: T_State):
-    message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
-    await reply_poke.finish(message)
+    if event.self_id != event.user_id:
+        message = Message('[CQ:poke,qq=' + str(event.get_user_id()) + ']')
+        await reply_poke.finish(message)

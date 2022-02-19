@@ -1,6 +1,7 @@
 import asyncio
 import os
 import traceback
+import json
 from pathlib import Path
 
 import nonebot
@@ -79,6 +80,30 @@ async def safe_send(bot_id, send_type, type_id, message):
         'message': message,
         'user_id' if send_type == 'private' else 'group_id': type_id
         })
+    except ActionFailed as e:
+        logger.error(f"推送失败（操作失败），错误信息：{e.info}")
+    except NetworkError as e:
+        logger.error(f"推送失败（网络错误），错误信息：{e.msg}")
+
+
+async def forward_send(bot_id, group_id, message_list):
+    try:
+        bot = nonebot.get_bots()[bot_id]
+    except KeyError:
+        logger.error(f"推送失败，Bot ID：{bot_id} 未连接")
+        return
+
+    try:
+        msg_list = []
+        for message in message_list:
+            print(bot.config.botqq)
+            msg_list.append({"type": "node", "data": {"name": "limus bot", "uin": bot.config.botqq, "content": message}})
+
+        return await bot.call_api('send_group_forward_msg', **{
+            'messages': msg_list,
+            'group_id': group_id
+        })
+        # return await bot.call_api('send_group_forward_msg', messages=msg_list, group_id=group_id)
     except ActionFailed as e:
         logger.error(f"推送失败（操作失败），错误信息：{e.info}")
     except NetworkError as e:

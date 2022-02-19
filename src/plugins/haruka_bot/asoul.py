@@ -2,7 +2,7 @@ from nonebot import on_command, on_message, on_notice
 from nonebot.typing import T_State
 from nonebot.permission import SUPERUSER
 from nonebot.adapters.cqhttp import Bot, Message, GroupMessageEvent, Event, PrivateMessageEvent
-from .utils import to_me, get_path, scheduler
+from .utils import to_me, get_path, scheduler, forward_send
 from tinydb import TinyDB, Query
 import requests
 import json
@@ -46,19 +46,24 @@ cfj = on_command('成分查询', priority=4)
 async def get_subscribe_vtb(bot: Bot, event: Event, state: dict):
     args = str(event.message).strip()
     if args:
-        state['name'] = args
+        if args.startswith("成分查询 "):
+            state['name'] = args.replace("成分查询 ", "")
+        else:
+            state['name'] = args
 
 
 @cfj.got('name', prompt='请输入B站用户昵称')
 async def _(bot: Bot, event: Event, state: dict):
-    response_json = requests.get("https://tools.asoulfan.com/api/cfj/?name=" + state['name']).json()
-    message = "[CQ:reply,id=" + str(event.message_id) + "]"
+    response_json = requests.get("https://api.asoulfan.com/cfj/?name=" + state['name']).json()
+    message = ""
     if response_json['code'] != 0:
-        message += "用户关注不可见捏"
+        message += "[CQ:reply,id=" + str(event.message_id) + "]用户关注不可见捏"
+        await cfj.finish(Message(message))
     else:
         subscribe_list = response_json['data']['list']
         if len(subscribe_list) == 0:
-            message += "没有查到捏"
+            message += "[CQ:reply,id=" + str(event.message_id) + "]没有查到捏"
+            await cfj.finish(Message(message))
         else:
             message += state['name'] + "关注的VUP有：\n"
             for vup in subscribe_list:
@@ -66,4 +71,8 @@ async def _(bot: Bot, event: Event, state: dict):
             message = message[:-1]
             message += "\n\n查询时间：" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             message += "\n数据来源：ProJectASF × 成分姬Official"
-    await cfj.finish(Message(message))
+            if isinstance(event, GroupMessageEvent):
+                await forward_send(bot.self_id, event.group_id, [message])
+            else:
+                await cfj.finish(Message(message))
+
